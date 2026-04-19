@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Window_Title" xml:space="preserve"><value>TrailMealsPlanner</value></data>
+  <data name="Language_Label" xml:space="preserve"><value>Language</value></data>
+  <data name="Language_English" xml:space="preserve"><value>English</value></data>
+  <data name="Language_Russian" xml:space="preserve"><value>Russian</value></data>
+  <data name="NewProject_Title" xml:space="preserve"><value>New Ration Project</value></data>
+  <data name="NewProject_Subtitle" xml:space="preserve"><value>Choose activity, review the preset profile, adjust conditions, and save.</value></data>
+  <data name="Label_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Watermark_Name" xml:space="preserve"><value>For example, Altai traverse</value></data>
+  <data name="Label_StartDate" xml:space="preserve"><value>Start date</value></data>
+  <data name="Label_DurationDays" xml:space="preserve"><value>Duration, days</value></data>
+  <data name="Label_Participants" xml:space="preserve"><value>Participants</value></data>
+  <data name="Label_ActivityType" xml:space="preserve"><value>Activity type</value></data>
+  <data name="Section_Environment" xml:space="preserve"><value>Environment</value></data>
+  <data name="Label_Temperature" xml:space="preserve"><value>Temperature</value></data>
+  <data name="Label_WaterAvailability" xml:space="preserve"><value>Water availability</value></data>
+  <data name="Label_Altitude" xml:space="preserve"><value>Altitude</value></data>
+  <data name="Label_Humidity" xml:space="preserve"><value>Humidity</value></data>
+  <data name="Section_Logistics" xml:space="preserve"><value>Logistics</value></data>
+  <data name="Label_WeightImportance" xml:space="preserve"><value>Weight importance</value></data>
+  <data name="Label_CookingPossibility" xml:space="preserve"><value>Cooking possibility</value></data>
+  <data name="Label_ResupplyFrequency" xml:space="preserve"><value>Resupply frequency</value></data>
+  <data name="Section_CompetitionNutritionFocus" xml:space="preserve"><value>Competition nutrition focus</value></data>
+  <data name="Button_Create" xml:space="preserve"><value>Create</value></data>
+  <data name="SavedProjects_Title" xml:space="preserve"><value>Saved Projects</value></data>
+  <data name="SavedProjects_Subtitle" xml:space="preserve"><value>Projects appear here immediately after creation.</value></data>
+  <data name="Status_EnterParameters" xml:space="preserve"><value>Enter ration parameters and create the project.</value></data>
+  <data name="Status_NameRequired" xml:space="preserve"><value>Specify the ration name.</value></data>
+  <data name="Status_DurationInvalid" xml:space="preserve"><value>Duration must be greater than zero.</value></data>
+  <data name="Status_ParticipantCountInvalid" xml:space="preserve"><value>Participant count must be greater than zero.</value></data>
+  <data name="Status_RationSaved" xml:space="preserve"><value>Ration "{0}" was saved.</value></data>
+  <data name="Status_RationsLoaded" xml:space="preserve"><value>Loaded rations: {0}.</value></data>
+  <data name="Unit_DaysShort" xml:space="preserve"><value>days</value></data>
+  <data name="Unit_PeopleShort" xml:space="preserve"><value>people</value></data>
+  <data name="ActivityType_Hiking" xml:space="preserve"><value>Hiking</value></data>
+  <data name="ActivityType_Mountain" xml:space="preserve"><value>Mountain</value></data>
+  <data name="ActivityType_Water" xml:space="preserve"><value>Water</value></data>
+  <data name="ActivityType_Ski" xml:space="preserve"><value>Ski</value></data>
+  <data name="ActivityType_Speleo" xml:space="preserve"><value>Speleo</value></data>
+  <data name="ActivityType_Cycling" xml:space="preserve"><value>Cycling</value></data>
+  <data name="ActivityType_AutoMoto" xml:space="preserve"><value>Auto / Moto</value></data>
+  <data name="ActivityType_Sailing" xml:space="preserve"><value>Sailing</value></data>
+  <data name="ActivityType_Horseback" xml:space="preserve"><value>Horseback</value></data>
+  <data name="ActivityType_Alpine" xml:space="preserve"><value>Alpine</value></data>
+  <data name="ActivityType_Competition" xml:space="preserve"><value>Competition</value></data>
+  <data name="ActivityType_Hunting" xml:space="preserve"><value>Hunting</value></data>
+  <data name="ActivityType_WeekendTrip" xml:space="preserve"><value>Weekend trip</value></data>
+  <data name="ActivityType_LeisureWalk" xml:space="preserve"><value>Leisure walk</value></data>
+  <data name="Temperature_Hot" xml:space="preserve"><value>Hot</value></data>
+  <data name="Temperature_Mild" xml:space="preserve"><value>Mild</value></data>
+  <data name="Temperature_Cold" xml:space="preserve"><value>Cold</value></data>
+  <data name="Temperature_ExtremeCold" xml:space="preserve"><value>Extreme cold</value></data>
+  <data name="Water_Abundant" xml:space="preserve"><value>Abundant</value></data>
+  <data name="Water_Limited" xml:space="preserve"><value>Limited</value></data>
+  <data name="Water_Scarce" xml:space="preserve"><value>Scarce</value></data>
+  <data name="Water_None" xml:space="preserve"><value>None</value></data>
+  <data name="Altitude_Low" xml:space="preserve"><value>Low</value></data>
+  <data name="Altitude_Medium" xml:space="preserve"><value>Medium</value></data>
+  <data name="Altitude_High" xml:space="preserve"><value>High</value></data>
+  <data name="Altitude_Extreme" xml:space="preserve"><value>Extreme</value></data>
+  <data name="Humidity_Dry" xml:space="preserve"><value>Dry</value></data>
+  <data name="Humidity_Normal" xml:space="preserve"><value>Normal</value></data>
+  <data name="Humidity_Wet" xml:space="preserve"><value>Wet</value></data>
+  <data name="Weight_Low" xml:space="preserve"><value>Low</value></data>
+  <data name="Weight_Medium" xml:space="preserve"><value>Medium</value></data>
+  <data name="Weight_High" xml:space="preserve"><value>High</value></data>
+  <data name="Weight_Critical" xml:space="preserve"><value>Critical</value></data>
+  <data name="Cooking_Full" xml:space="preserve"><value>Full</value></data>
+  <data name="Cooking_Limited" xml:space="preserve"><value>Limited</value></data>
+  <data name="Cooking_Minimal" xml:space="preserve"><value>Minimal</value></data>
+  <data name="Cooking_None" xml:space="preserve"><value>None</value></data>
+  <data name="Resupply_Daily" xml:space="preserve"><value>Daily</value></data>
+  <data name="Resupply_EveryFewDays" xml:space="preserve"><value>Every few days</value></data>
+  <data name="Resupply_Rare" xml:space="preserve"><value>Rare</value></data>
+  <data name="Resupply_None" xml:space="preserve"><value>None</value></data>
+  <data name="Competition_Balanced" xml:space="preserve"><value>Balanced</value></data>
+  <data name="Competition_CarbHeavy" xml:space="preserve"><value>Carb-heavy</value></data>
+  <data name="Competition_Lightweight" xml:space="preserve"><value>Lightweight</value></data>
+  <data name="Competition_Recovery" xml:space="preserve"><value>Recovery-focused</value></data>
+</root>

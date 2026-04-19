@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TrailMealsPlanner.Application\TrailMealsPlanner.Application.csproj" />
+    <ProjectReference Include="..\TrailMealsPlanner.Contracts\TrailMealsPlanner.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

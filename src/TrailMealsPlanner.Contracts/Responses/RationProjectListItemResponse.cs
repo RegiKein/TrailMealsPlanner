@@ -1,6 +1,8 @@
-namespace TrailMealsPlanner.Application.DTO;
+using TrailMealsPlanner.Contracts.DTO;
 
-public sealed class RationProjectListItemDto
+namespace TrailMealsPlanner.Contracts.Responses;
+
+public sealed class RationProjectListItemResponse
 {
     public Guid Id { get; init; }
 
@@ -14,5 +16,5 @@ public sealed class RationProjectListItemDto
 
     public int ParticipantCount { get; init; }
 
-    public RationProfileDto Profile { get; init; } = new();
+    public RationProfileContract Profile { get; init; } = new();
 }

@@ -1,5 +1,6 @@
 using TrailMealsPlanner.Application.Interfaces;
 using TrailMealsPlanner.Domain.Entities;
+using TrailMealsPlanner.Domain.ValueObjects;
 
 namespace TrailMealsPlanner.Application.UseCases;
 
@@ -34,8 +35,18 @@ public sealed class CreateRationHandler
             command.StartDate,
             command.DurationDays,
             command.ParticipantCount,
-            command.TourismType,
-            command.Season);
+            new RationProfile(
+                command.ActivityType,
+                new EnvironmentConditions(
+                    command.TemperatureRange,
+                    command.WaterAvailability,
+                    command.AltitudeRange,
+                    command.HumidityLevel),
+                new LogisticsConstraints(
+                    command.WeightImportance,
+                    command.CookingPossibility,
+                    command.ResupplyFrequency),
+                command.CompetitionFocus));
 
         await repository.AddAsync(rationProject, cancellationToken);
 

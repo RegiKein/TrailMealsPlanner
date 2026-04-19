@@ -29,8 +29,24 @@ public sealed class GetRationsHandler
                 EndDate = project.EndDate,
                 DurationDays = project.DurationDays,
                 ParticipantCount = project.ParticipantCount,
-                TourismType = project.TourismType,
-                Season = project.Season
+                Profile = new RationProfileDto
+                {
+                    ActivityType = project.Profile.ActivityType,
+                    CompetitionFocus = project.Profile.CompetitionFocus,
+                    Environment = new EnvironmentConditionsDto
+                    {
+                        TemperatureRange = project.Profile.Environment.TemperatureRange,
+                        WaterAvailability = project.Profile.Environment.WaterAvailability,
+                        AltitudeRange = project.Profile.Environment.AltitudeRange,
+                        HumidityLevel = project.Profile.Environment.HumidityLevel
+                    },
+                    Logistics = new LogisticsConstraintsDto
+                    {
+                        WeightImportance = project.Profile.Logistics.WeightImportance,
+                        CookingPossibility = project.Profile.Logistics.CookingPossibility,
+                        ResupplyFrequency = project.Profile.Logistics.ResupplyFrequency
+                    }
+                }
             })
             .ToList();
     }

@@ -12,7 +12,21 @@ public sealed class CreateRationCommand
 
     public int ParticipantCount { get; set; }
 
-    public TourismType TourismType { get; set; }
+    public ActivityType ActivityType { get; set; }
 
-    public Season Season { get; set; }
+    public TemperatureRange TemperatureRange { get; set; }
+
+    public WaterAvailability WaterAvailability { get; set; }
+
+    public AltitudeRange AltitudeRange { get; set; }
+
+    public HumidityLevel HumidityLevel { get; set; }
+
+    public WeightImportance WeightImportance { get; set; }
+
+    public CookingPossibility CookingPossibility { get; set; }
+
+    public ResupplyFrequency ResupplyFrequency { get; set; }
+
+    public CompetitionNutritionFocus? CompetitionFocus { get; set; }
 }

@@ -1,4 +1,4 @@
-using TrailMealsPlanner.Domain.Enums;
+using TrailMealsPlanner.Domain.ValueObjects;
 
 namespace TrailMealsPlanner.Domain.Entities;
 
@@ -11,8 +11,7 @@ public sealed class RationProject
         DateTime startDate,
         int durationDays,
         int participantCount,
-        TourismType tourismType,
-        Season season)
+        RationProfile profile)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -29,13 +28,13 @@ public sealed class RationProject
             throw new ArgumentOutOfRangeException(nameof(participantCount), "Participant count must be greater than zero.");
         }
 
+        Profile = profile ?? throw new ArgumentNullException(nameof(profile));
+
         Id = Guid.NewGuid();
         Name = name.Trim();
         StartDate = startDate.Date;
         DurationDays = durationDays;
         ParticipantCount = participantCount;
-        TourismType = tourismType;
-        Season = season;
 
         BuildDays();
     }
@@ -52,9 +51,7 @@ public sealed class RationProject
 
     public int ParticipantCount { get; }
 
-    public TourismType TourismType { get; }
-
-    public Season Season { get; }
+    public RationProfile Profile { get; }
 
     public IReadOnlyList<RationDay> Days => days;
 

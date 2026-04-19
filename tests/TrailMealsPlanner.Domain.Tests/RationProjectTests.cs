@@ -1,5 +1,7 @@
 using TrailMealsPlanner.Domain.Entities;
 using TrailMealsPlanner.Domain.Enums;
+using TrailMealsPlanner.Domain.Services;
+using TrailMealsPlanner.Domain.ValueObjects;
 
 namespace TrailMealsPlanner.Domain.Tests;
 
@@ -15,14 +17,14 @@ public sealed class RationProjectTests
             startDate,
             durationDays: 3,
             participantCount: 4,
-            tourismType: TourismType.Hiking,
-            season: Season.Summer);
+            profile: RationProfileFactory.CreateDefault(ActivityType.Hiking));
 
         Assert.Equal("Altai Trek", project.Name);
         Assert.Equal(startDate, project.StartDate);
         Assert.Equal(startDate.AddDays(2), project.EndDate);
         Assert.Equal(3, project.DurationDays);
         Assert.Equal(4, project.ParticipantCount);
+        Assert.Equal(ActivityType.Hiking, project.Profile.ActivityType);
         Assert.Equal(3, project.Days.Count);
 
         Assert.Collection(
@@ -57,8 +59,7 @@ public sealed class RationProjectTests
             new DateTime(2026, 4, 20),
             durationDays: 3,
             participantCount: 4,
-            tourismType: TourismType.Hiking,
-            season: Season.Summer);
+            profile: RationProfileFactory.CreateDefault(ActivityType.Hiking));
 
         Assert.Throws<ArgumentException>(action);
     }
@@ -73,8 +74,7 @@ public sealed class RationProjectTests
             new DateTime(2026, 4, 20),
             durationDays: invalidDuration,
             participantCount: 4,
-            tourismType: TourismType.Hiking,
-            season: Season.Summer);
+            profile: RationProfileFactory.CreateDefault(ActivityType.Hiking));
 
         Assert.Throws<ArgumentOutOfRangeException>(action);
     }
@@ -89,9 +89,27 @@ public sealed class RationProjectTests
             new DateTime(2026, 4, 20),
             durationDays: 3,
             participantCount: invalidParticipantCount,
-            tourismType: TourismType.Hiking,
-            season: Season.Summer);
+            profile: RationProfileFactory.CreateDefault(ActivityType.Hiking));
 
         Assert.Throws<ArgumentOutOfRangeException>(action);
+    }
+
+    [Fact]
+    public void Constructor_Throws_WhenCompetitionFocusIsUsedOutsideCompetition()
+    {
+        var action = () => new RationProfile(
+            ActivityType.Hiking,
+            new EnvironmentConditions(
+                TemperatureRange.Mild,
+                WaterAvailability.Limited,
+                AltitudeRange.Low,
+                HumidityLevel.Normal),
+            new LogisticsConstraints(
+                WeightImportance.Medium,
+                CookingPossibility.Full,
+                ResupplyFrequency.Rare),
+            CompetitionNutritionFocus.CarbHeavy);
+
+        Assert.Throws<ArgumentException>(action);
     }
 }

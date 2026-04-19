@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Window_Title" xml:space="preserve"><value>TrailMealsPlanner</value></data>
+  <data name="Language_Label" xml:space="preserve"><value>Язык</value></data>
+  <data name="Language_English" xml:space="preserve"><value>English</value></data>
+  <data name="Language_Russian" xml:space="preserve"><value>Русский</value></data>
+  <data name="NewProject_Title" xml:space="preserve"><value>Новый проект рациона</value></data>
+  <data name="NewProject_Subtitle" xml:space="preserve"><value>Выберите активность, проверьте профиль по умолчанию, скорректируйте условия и сохраните.</value></data>
+  <data name="Label_Name" xml:space="preserve"><value>Название</value></data>
+  <data name="Watermark_Name" xml:space="preserve"><value>Например, Алтайский маршрут</value></data>
+  <data name="Label_StartDate" xml:space="preserve"><value>Дата начала</value></data>
+  <data name="Label_DurationDays" xml:space="preserve"><value>Длительность, дней</value></data>
+  <data name="Label_Participants" xml:space="preserve"><value>Участники</value></data>
+  <data name="Label_ActivityType" xml:space="preserve"><value>Вид активности</value></data>
+  <data name="Section_Environment" xml:space="preserve"><value>Условия среды</value></data>
+  <data name="Label_Temperature" xml:space="preserve"><value>Температура</value></data>
+  <data name="Label_WaterAvailability" xml:space="preserve"><value>Доступность воды</value></data>
+  <data name="Label_Altitude" xml:space="preserve"><value>Высота</value></data>
+  <data name="Label_Humidity" xml:space="preserve"><value>Влажность</value></data>
+  <data name="Section_Logistics" xml:space="preserve"><value>Логистические ограничения</value></data>
+  <data name="Label_WeightImportance" xml:space="preserve"><value>Критичность веса</value></data>
+  <data name="Label_CookingPossibility" xml:space="preserve"><value>Возможность готовки</value></data>
+  <data name="Label_ResupplyFrequency" xml:space="preserve"><value>Частота пополнения</value></data>
+  <data name="Section_CompetitionNutritionFocus" xml:space="preserve"><value>Акцент питания для соревнований</value></data>
+  <data name="Button_Create" xml:space="preserve"><value>Создать</value></data>
+  <data name="SavedProjects_Title" xml:space="preserve"><value>Сохранённые проекты</value></data>
+  <data name="SavedProjects_Subtitle" xml:space="preserve"><value>Проект появляется в списке сразу после создания.</value></data>
+  <data name="Status_EnterParameters" xml:space="preserve"><value>Введите параметры рациона и создайте проект.</value></data>
+  <data name="Status_NameRequired" xml:space="preserve"><value>Укажите название рациона.</value></data>
+  <data name="Status_DurationInvalid" xml:space="preserve"><value>Длительность должна быть больше нуля.</value></data>
+  <data name="Status_ParticipantCountInvalid" xml:space="preserve"><value>Количество участников должно быть больше нуля.</value></data>
+  <data name="Status_RationSaved" xml:space="preserve"><value>Рацион "{0}" сохранён.</value></data>
+  <data name="Status_RationsLoaded" xml:space="preserve"><value>Загружено рационов: {0}.</value></data>
+  <data name="Unit_DaysShort" xml:space="preserve"><value>дн.</value></data>
+  <data name="Unit_PeopleShort" xml:space="preserve"><value>уч.</value></data>
+  <data name="ActivityType_Hiking" xml:space="preserve"><value>Пешеходный поход</value></data>
+  <data name="ActivityType_Mountain" xml:space="preserve"><value>Горный поход</value></data>
+  <data name="ActivityType_Water" xml:space="preserve"><value>Водный поход</value></data>
+  <data name="ActivityType_Ski" xml:space="preserve"><value>Лыжный поход</value></data>
+  <data name="ActivityType_Speleo" xml:space="preserve"><value>Спелео</value></data>
+  <data name="ActivityType_Cycling" xml:space="preserve"><value>Велопоход</value></data>
+  <data name="ActivityType_AutoMoto" xml:space="preserve"><value>Авто / мото</value></data>
+  <data name="ActivityType_Sailing" xml:space="preserve"><value>Парусный поход</value></data>
+  <data name="ActivityType_Horseback" xml:space="preserve"><value>Конный поход</value></data>
+  <data name="ActivityType_Alpine" xml:space="preserve"><value>Альпинизм</value></data>
+  <data name="ActivityType_Competition" xml:space="preserve"><value>Соревнования</value></data>
+  <data name="ActivityType_Hunting" xml:space="preserve"><value>Охота</value></data>
+  <data name="ActivityType_WeekendTrip" xml:space="preserve"><value>ПВД</value></data>
+  <data name="ActivityType_LeisureWalk" xml:space="preserve"><value>Прогулка</value></data>
+  <data name="Temperature_Hot" xml:space="preserve"><value>Жарко</value></data>
+  <data name="Temperature_Mild" xml:space="preserve"><value>Умеренно</value></data>
+  <data name="Temperature_Cold" xml:space="preserve"><value>Холодно</value></data>
+  <data name="Temperature_ExtremeCold" xml:space="preserve"><value>Экстремальный холод</value></data>
+  <data name="Water_Abundant" xml:space="preserve"><value>Много воды</value></data>
+  <data name="Water_Limited" xml:space="preserve"><value>Ограниченно</value></data>
+  <data name="Water_Scarce" xml:space="preserve"><value>Мало</value></data>
+  <data name="Water_None" xml:space="preserve"><value>Нет</value></data>
+  <data name="Altitude_Low" xml:space="preserve"><value>Низкая</value></data>
+  <data name="Altitude_Medium" xml:space="preserve"><value>Средняя</value></data>
+  <data name="Altitude_High" xml:space="preserve"><value>Высокая</value></data>
+  <data name="Altitude_Extreme" xml:space="preserve"><value>Экстремальная</value></data>
+  <data name="Humidity_Dry" xml:space="preserve"><value>Сухо</value></data>
+  <data name="Humidity_Normal" xml:space="preserve"><value>Нормально</value></data>
+  <data name="Humidity_Wet" xml:space="preserve"><value>Влажно</value></data>
+  <data name="Weight_Low" xml:space="preserve"><value>Низкая</value></data>
+  <data name="Weight_Medium" xml:space="preserve"><value>Средняя</value></data>
+  <data name="Weight_High" xml:space="preserve"><value>Высокая</value></data>
+  <data name="Weight_Critical" xml:space="preserve"><value>Критическая</value></data>
+  <data name="Cooking_Full" xml:space="preserve"><value>Полная</value></data>
+  <data name="Cooking_Limited" xml:space="preserve"><value>Ограниченная</value></data>
+  <data name="Cooking_Minimal" xml:space="preserve"><value>Минимальная</value></data>
+  <data name="Cooking_None" xml:space="preserve"><value>Нет</value></data>
+  <data name="Resupply_Daily" xml:space="preserve"><value>Ежедневно</value></data>
+  <data name="Resupply_EveryFewDays" xml:space="preserve"><value>Раз в несколько дней</value></data>
+  <data name="Resupply_Rare" xml:space="preserve"><value>Редко</value></data>
+  <data name="Resupply_None" xml:space="preserve"><value>Нет</value></data>
+  <data name="Competition_Balanced" xml:space="preserve"><value>Сбалансированный</value></data>
+  <data name="Competition_CarbHeavy" xml:space="preserve"><value>Углеводный</value></data>
+  <data name="Competition_Lightweight" xml:space="preserve"><value>Лёгкий по весу</value></data>
+  <data name="Competition_Recovery" xml:space="preserve"><value>Восстановление</value></data>
+</root>

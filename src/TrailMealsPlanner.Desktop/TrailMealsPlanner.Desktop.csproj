@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AvaloniaResource Include="Resources\**" />
+    <AvaloniaResource Include="Resources\**" Exclude="Resources\Strings*.resx" />
+    <EmbeddedResource Update="Resources\Strings*.resx" />
   </ItemGroup>
 
   <ItemGroup>
