@@ -1,0 +1,75 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="TrailMealsPlanner.Desktop.App"
+             xmlns:local="using:TrailMealsPlanner.Desktop"
+             RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F5F2E8" />
+                    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#F7FBF3" />
+                    <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#FFFFFFFF" />
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#EAF4E6" />
+                    <SolidColorBrush x:Key="PrimaryButtonBackgroundBrush" Color="#245C37" />
+                    <SolidColorBrush x:Key="PrimaryButtonForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="FieldBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="FieldBorderBrush" Color="#A6B7A8" />
+                    <SolidColorBrush x:Key="PrimaryTextBrush" Color="#16231F" />
+                    <SolidColorBrush x:Key="SecondaryTextBrush" Color="#5B6D64" />
+                    <SolidColorBrush x:Key="StatusBrush" Color="#245C37" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#101715" />
+                    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#18211E" />
+                    <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#202A27" />
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#24312D" />
+                    <SolidColorBrush x:Key="PrimaryButtonBackgroundBrush" Color="#7EC08D" />
+                    <SolidColorBrush x:Key="PrimaryButtonForegroundBrush" Color="#102017" />
+                    <SolidColorBrush x:Key="FieldBackgroundBrush" Color="#202A27" />
+                    <SolidColorBrush x:Key="FieldBorderBrush" Color="#4E6660" />
+                    <SolidColorBrush x:Key="PrimaryTextBrush" Color="#F2F7F4" />
+                    <SolidColorBrush x:Key="SecondaryTextBrush" Color="#A8BBB4" />
+                    <SolidColorBrush x:Key="StatusBrush" Color="#9ED7AA" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        </Style>
+
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        </Style>
+
+        <Style Selector="TextBox, DatePicker, NumericUpDown, ListBox">
+            <Setter Property="Background" Value="{DynamicResource FieldBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource FieldBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="Background" Value="{DynamicResource PrimaryButtonBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryButtonForegroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBackgroundBrush}" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="Button:pointerover">
+            <Setter Property="Opacity" Value="0.92" />
+        </Style>
+    </Application.Styles>
+</Application>

@@ -1,0 +1,114 @@
+<Window
+    Icon="/Resources/avalonia-logo.ico"
+    Title="TrailMealsPlanner"
+    d:DesignHeight="760"
+    d:DesignWidth="1180"
+    mc:Ignorable="d"
+    x:Class="TrailMealsPlanner.Desktop.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:TrailMealsPlanner.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid ColumnDefinitions="420,*" RowDefinitions="Auto,*" Margin="24">
+        <Border Grid.Column="0"
+                Padding="24"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                CornerRadius="18">
+            <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
+                    <TextBlock FontSize="28" FontWeight="Bold" Text="Новый проект рациона" />
+                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                               Opacity="0.95"
+                               Text="Минимальная модель: проект рациона и автоматически созданные дни."
+                               TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Название" />
+                    <TextBox Watermark="Например, Алтайский поход" Text="{Binding Name}" />
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Дата начала" />
+                    <DatePicker SelectedDate="{Binding StartDate}" />
+                </StackPanel>
+
+                <Grid ColumnDefinitions="*,*">
+                    <StackPanel Grid.Column="0" Spacing="8">
+                        <TextBlock Text="Длительность, дней" />
+                        <NumericUpDown Minimum="1" Maximum="60" Value="{Binding DurationDays}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="8">
+                        <TextBlock Text="Участники" />
+                        <NumericUpDown Minimum="1" Maximum="50" Value="{Binding ParticipantCount}" />
+                    </StackPanel>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*">
+                    <StackPanel Grid.Column="0" Spacing="8">
+                        <TextBlock Text="Тип туризма" />
+                        <ComboBox ItemsSource="{Binding TourismTypes}"
+                                  SelectedItem="{Binding SelectedTourismType}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="8">
+                        <TextBlock Text="Сезон" />
+                        <ComboBox ItemsSource="{Binding Seasons}"
+                                  SelectedItem="{Binding SelectedSeason}" />
+                    </StackPanel>
+                </Grid>
+
+                <Button HorizontalAlignment="Stretch"
+                        Command="{Binding CreateRationCommand}"
+                        Content="Создать" />
+
+                <TextBlock FontWeight="SemiBold"
+                           Foreground="{DynamicResource StatusBrush}"
+                           Text="{Binding StatusMessage}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Column="1" Margin="24,0,0,0" Spacing="16">
+            <StackPanel Spacing="4">
+                <TextBlock FontSize="28" FontWeight="Bold" Text="Сохраненные проекты" />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           Opacity="0.95"
+                           Text="После создания проект сразу появляется в списке вместе с параметрами." />
+            </StackPanel>
+
+            <Border Padding="12"
+                    Background="{DynamicResource SurfaceBackgroundBrush}"
+                    CornerRadius="18">
+                <ListBox Background="Transparent"
+                         BorderThickness="0"
+                         ItemsSource="{Binding RationProjects}"
+                         SelectedItem="{Binding SelectedRationProject}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RationProjectListItemViewModel">
+                            <Border Margin="0,0,0,12"
+                                    Padding="16"
+                                    Background="{DynamicResource CardBackgroundBrush}"
+                                    CornerRadius="14">
+                                <StackPanel Spacing="4">
+                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding Name}" />
+                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Opacity="0.95"
+                                               Text="{Binding Summary}" />
+                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Opacity="0.95"
+                                               Text="{Binding Metadata}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+        </StackPanel>
+    </Grid>
+
+</Window>
