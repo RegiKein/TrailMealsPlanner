@@ -61,6 +61,34 @@
             </StackPanel>
         </Border>
 
+        <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                CornerRadius="18"
+                IsVisible="{Binding HasRation}"
+                Padding="16">
+            <StackPanel Spacing="12">
+                <TextBlock FontSize="18" FontWeight="SemiBold" Text="Предупреждения" />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           IsVisible="{Binding !HasWarnings}"
+                           Text="Пока предупреждений нет." />
+
+                <ItemsControl IsVisible="{Binding HasWarnings}"
+                              ItemsSource="{Binding Warnings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:WarningItemViewModel">
+                            <Border Background="{DynamicResource CardBackgroundBrush}"
+                                    CornerRadius="12"
+                                    Margin="0,0,0,8"
+                                    Padding="12">
+                                <TextBlock Foreground="{DynamicResource WarningBrush}"
+                                           Text="{Binding Display}"
+                                           TextWrapping="Wrap" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
         <TextBlock Foreground="{DynamicResource StatusBrush}"
                    FontWeight="SemiBold"
                    IsVisible="{Binding HasRation}"
@@ -115,17 +143,40 @@
                                 Margin="0,0,0,12"
                                 Padding="16">
                             <StackPanel Spacing="12">
-                                <StackPanel Spacing="4">
-                                    <TextBlock FontSize="18"
-                                               FontWeight="SemiBold"
-                                               Text="{Binding Display}" />
-                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
-                                               Text="{Binding Nutrition.CaloriesDisplay}" />
-                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
-                                               Text="{Binding Nutrition.WeightDisplay}" />
-                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
-                                               Text="{Binding Nutrition.DensityDisplay}" />
-                                </StackPanel>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock FontSize="18"
+                                                   FontWeight="SemiBold"
+                                                   Text="{Binding Display}" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Text="{Binding Nutrition.CaloriesDisplay}" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Text="{Binding Nutrition.WeightDisplay}" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Text="{Binding Nutrition.DensityDisplay}" />
+                                    </StackPanel>
+
+                                    <Border Grid.Column="1"
+                                            Background="{DynamicResource SurfaceBackgroundBrush}"
+                                            CornerRadius="999"
+                                            IsVisible="{Binding HasWarnings}"
+                                            Padding="10,6">
+                                        <TextBlock Foreground="{DynamicResource WarningBrush}"
+                                                   FontWeight="SemiBold"
+                                                   Text="{Binding WarningBadgeText}" />
+                                    </Border>
+                                </Grid>
+
+                                <ItemsControl IsVisible="{Binding HasWarnings}"
+                                              ItemsSource="{Binding Warnings}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:WarningItemViewModel">
+                                            <TextBlock Foreground="{DynamicResource WarningBrush}"
+                                                       Text="{Binding Display}"
+                                                       TextWrapping="Wrap" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
 
                                 <Border Background="{DynamicResource SurfaceBackgroundBrush}"
                                         CornerRadius="12"

@@ -23,6 +23,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     private readonly GetDishesHandler getDishesHandler;
     private readonly GetRationAnalyticsHandler getRationAnalyticsHandler;
     private readonly GetRationByIdHandler getRationByIdHandler;
+    private readonly GetRationWarningsHandler getRationWarningsHandler;
     private readonly SaveDayAsTemplateHandler saveDayAsTemplateHandler;
     private IReadOnlyList<DishOptionViewModel> availableDishes = [];
     private IReadOnlyList<DayCopyTargetViewModel> availableCopyTargets = [];
@@ -35,6 +36,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     public RationDetailsViewModel(
         GetRationByIdHandler getRationByIdHandler,
         GetRationAnalyticsHandler getRationAnalyticsHandler,
+        GetRationWarningsHandler getRationWarningsHandler,
         GetDishesHandler getDishesHandler,
         AddDishToMealHandler addDishToMealHandler,
         CopyDayHandler copyDayHandler,
@@ -46,6 +48,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     {
         this.getRationByIdHandler = getRationByIdHandler;
         this.getRationAnalyticsHandler = getRationAnalyticsHandler;
+        this.getRationWarningsHandler = getRationWarningsHandler;
         this.getDishesHandler = getDishesHandler;
         this.addDishToMealHandler = addDishToMealHandler;
         this.copyDayHandler = copyDayHandler;
@@ -66,11 +69,15 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
 
     public ObservableCollection<DayTemplateOptionViewModel> Templates { get; } = [];
 
+    public ObservableCollection<WarningItemViewModel> Warnings { get; } = [];
+
     public bool HasRation => RationId != Guid.Empty;
 
     public bool IsEmpty => !HasRation;
 
     public bool HasTemplates => Templates.Count > 0;
+
+    public bool HasWarnings => Warnings.Count > 0;
 
     public string ExportDirectory => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -88,16 +95,34 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         var analytics = await getRationAnalyticsHandler.Handle(
             new GetRationAnalyticsQuery { RationId = rationId },
             cancellationToken);
+        var warnings = await getRationWarningsHandler.Handle(
+            new GetRationWarningsQuery { RationId = rationId },
+            cancellationToken);
 
         Days.Clear();
         Templates.Clear();
+        Warnings.Clear();
 
         foreach (var template in availableTemplates)
         {
             Templates.Add(template);
         }
 
+        if (warnings is not null)
+        {
+            foreach (var warning in warnings.RationWarnings)
+            {
+                Warnings.Add(new WarningItemViewModel(warning));
+            }
+
+            foreach (var dayWarning in warnings.Days.SelectMany(day => day.Warnings))
+            {
+                Warnings.Add(new WarningItemViewModel(dayWarning));
+            }
+        }
+
         OnPropertyChanged(nameof(HasTemplates));
+        OnPropertyChanged(nameof(HasWarnings));
 
         if (details is null)
         {
@@ -127,6 +152,12 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         foreach (var day in details.Days)
         {
             var dayAnalytics = analytics?.Days.FirstOrDefault(item => item.DayId == day.Id);
+            var dayWarnings = warnings?.Days
+                .FirstOrDefault(item => item.DayId == day.Id)?
+                .Warnings
+                .Select(warning => new WarningItemViewModel(warning))
+                .ToList() ?? [];
+
             var dayViewModel = new RationDayViewModel(
                 day,
                 dayAnalytics,
@@ -140,6 +171,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
             dayViewModel.UpdateCopyTargets(availableCopyTargets);
             dayViewModel.UpdateMealCopyTargets();
             dayViewModel.UpdateTemplateOptions(availableTemplates);
+            dayViewModel.UpdateWarnings(dayWarnings);
             Days.Add(dayViewModel);
         }
 

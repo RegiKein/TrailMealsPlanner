@@ -19,6 +19,7 @@ public static class DependencyInjection
         services.AddTransient<GetDishesHandler>();
         services.AddTransient<GetRationAnalyticsHandler>();
         services.AddTransient<GetRationByIdHandler>();
+        services.AddTransient<GetRationWarningsHandler>();
         services.AddTransient<GetProductsHandler>();
         services.AddTransient<GetRationsHandler>();
         services.AddTransient<SaveDayAsTemplateHandler>();

@@ -41,6 +41,9 @@ public partial class RationDayViewModel : ViewModelBase
     [ObservableProperty]
     private bool confirmTemplateApply;
 
+    [ObservableProperty]
+    private IReadOnlyList<WarningItemViewModel> warnings = [];
+
     public RationDayViewModel(
         RationDayDto day,
         RationDayAnalyticsDto? analytics,
@@ -93,6 +96,12 @@ public partial class RationDayViewModel : ViewModelBase
 
     public string ApplyTemplateButtonText => ConfirmTemplateApply ? "Подтвердить замену" : "Применить шаблон";
 
+    public bool HasWarnings => Warnings.Count > 0;
+
+    public string WarningBadgeText => Warnings.Count == 0
+        ? string.Empty
+        : $"{GetHighestSeverityLabel()} · {Warnings.Count}";
+
     public void UpdateDishOptions(IReadOnlyList<DishOptionViewModel> dishes)
     {
         foreach (var meal in Meals)
@@ -127,6 +136,16 @@ public partial class RationDayViewModel : ViewModelBase
             ? AvailableTemplates.FirstOrDefault(template => template.Id == SelectedTemplate.Id) ?? AvailableTemplates.FirstOrDefault()
             : AvailableTemplates.FirstOrDefault();
         ConfirmTemplateApply = false;
+    }
+
+    public void UpdateWarnings(IReadOnlyList<WarningItemViewModel> warnings)
+    {
+        Warnings = warnings
+            .OrderByDescending(warning => warning.Severity)
+            .ThenBy(warning => warning.Message)
+            .ToList();
+        OnPropertyChanged(nameof(HasWarnings));
+        OnPropertyChanged(nameof(WarningBadgeText));
     }
 
     partial void OnConfirmTemplateApplyChanged(bool value)
@@ -187,5 +206,16 @@ public partial class RationDayViewModel : ViewModelBase
         await applyTemplate(SelectedTemplate.Id, Id);
         ConfirmTemplateApply = false;
         TemplateStatusMessage = $"Шаблон \"{SelectedTemplate.Name}\" применён.";
+    }
+
+    private string GetHighestSeverityLabel()
+    {
+        var highestSeverity = Warnings.Max(warning => warning.Severity);
+        return highestSeverity switch
+        {
+            Application.DTO.WarningSeverity.Critical => "Критично",
+            Application.DTO.WarningSeverity.Warning => "Внимание",
+            _ => "Инфо"
+        };
     }
 }
