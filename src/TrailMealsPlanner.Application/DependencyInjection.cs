@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using TrailMealsPlanner.Application.Interfaces;
+using TrailMealsPlanner.Application.Services;
 using TrailMealsPlanner.Application.UseCases;
 
 namespace TrailMealsPlanner.Application;
@@ -7,6 +9,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddSingleton<IRationProfileRecommendationService, RationProfileRecommendationService>();
         services.AddTransient<AddDishToMealHandler>();
         services.AddTransient<ApplyDayTemplateHandler>();
         services.AddTransient<CopyDayHandler>();
@@ -19,6 +22,7 @@ public static class DependencyInjection
         services.AddTransient<GetDishesHandler>();
         services.AddTransient<GetRationAnalyticsHandler>();
         services.AddTransient<GetRationByIdHandler>();
+        services.AddTransient<GetRationRecommendationsHandler>();
         services.AddTransient<GetRationWarningsHandler>();
         services.AddTransient<GetProductsHandler>();
         services.AddTransient<GetRationsHandler>();

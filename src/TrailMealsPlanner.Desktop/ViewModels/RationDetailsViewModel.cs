@@ -23,6 +23,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     private readonly GetDishesHandler getDishesHandler;
     private readonly GetRationAnalyticsHandler getRationAnalyticsHandler;
     private readonly GetRationByIdHandler getRationByIdHandler;
+    private readonly GetRationRecommendationsHandler getRationRecommendationsHandler;
     private readonly GetRationWarningsHandler getRationWarningsHandler;
     private readonly SaveDayAsTemplateHandler saveDayAsTemplateHandler;
     private IReadOnlyList<DishOptionViewModel> availableDishes = [];
@@ -37,6 +38,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         GetRationByIdHandler getRationByIdHandler,
         GetRationAnalyticsHandler getRationAnalyticsHandler,
         GetRationWarningsHandler getRationWarningsHandler,
+        GetRationRecommendationsHandler getRationRecommendationsHandler,
         GetDishesHandler getDishesHandler,
         AddDishToMealHandler addDishToMealHandler,
         CopyDayHandler copyDayHandler,
@@ -49,6 +51,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         this.getRationByIdHandler = getRationByIdHandler;
         this.getRationAnalyticsHandler = getRationAnalyticsHandler;
         this.getRationWarningsHandler = getRationWarningsHandler;
+        this.getRationRecommendationsHandler = getRationRecommendationsHandler;
         this.getDishesHandler = getDishesHandler;
         this.addDishToMealHandler = addDishToMealHandler;
         this.copyDayHandler = copyDayHandler;
@@ -71,6 +74,8 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
 
     public ObservableCollection<WarningItemViewModel> Warnings { get; } = [];
 
+    public ObservableCollection<RecommendationItemViewModel> Recommendations { get; } = [];
+
     public bool HasRation => RationId != Guid.Empty;
 
     public bool IsEmpty => !HasRation;
@@ -78,6 +83,8 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     public bool HasTemplates => Templates.Count > 0;
 
     public bool HasWarnings => Warnings.Count > 0;
+
+    public bool HasRecommendations => Recommendations.Count > 0;
 
     public string ExportDirectory => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -98,10 +105,14 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         var warnings = await getRationWarningsHandler.Handle(
             new GetRationWarningsQuery { RationId = rationId },
             cancellationToken);
+        var recommendations = await getRationRecommendationsHandler.Handle(
+            new GetRationRecommendationsQuery { RationId = rationId },
+            cancellationToken);
 
         Days.Clear();
         Templates.Clear();
         Warnings.Clear();
+        Recommendations.Clear();
 
         foreach (var template in availableTemplates)
         {
@@ -121,8 +132,14 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
             }
         }
 
+        foreach (var recommendation in recommendations)
+        {
+            Recommendations.Add(new RecommendationItemViewModel(recommendation));
+        }
+
         OnPropertyChanged(nameof(HasTemplates));
         OnPropertyChanged(nameof(HasWarnings));
+        OnPropertyChanged(nameof(HasRecommendations));
 
         if (details is null)
         {

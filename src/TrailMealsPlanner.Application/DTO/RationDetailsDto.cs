@@ -6,5 +6,7 @@ public sealed class RationDetailsDto
 
     public string Name { get; init; } = string.Empty;
 
+    public RationProfileDto Profile { get; init; } = new();
+
     public IReadOnlyList<RationDayDto> Days { get; init; } = [];
 }

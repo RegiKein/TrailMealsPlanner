@@ -31,6 +31,24 @@ public sealed class GetRationByIdHandler
         {
             Id = project.Id,
             Name = project.Name,
+            Profile = new RationProfileDto
+            {
+                ActivityType = project.Profile.ActivityType,
+                CompetitionFocus = project.Profile.CompetitionFocus,
+                Environment = new EnvironmentConditionsDto
+                {
+                    TemperatureRange = project.Profile.Environment.TemperatureRange,
+                    WaterAvailability = project.Profile.Environment.WaterAvailability,
+                    AltitudeRange = project.Profile.Environment.AltitudeRange,
+                    HumidityLevel = project.Profile.Environment.HumidityLevel
+                },
+                Logistics = new LogisticsConstraintsDto
+                {
+                    WeightImportance = project.Profile.Logistics.WeightImportance,
+                    CookingPossibility = project.Profile.Logistics.CookingPossibility,
+                    ResupplyFrequency = project.Profile.Logistics.ResupplyFrequency
+                }
+            },
             Days = project.Days
                 .OrderBy(day => day.DayNumber)
                 .Select(day => new RationDayDto

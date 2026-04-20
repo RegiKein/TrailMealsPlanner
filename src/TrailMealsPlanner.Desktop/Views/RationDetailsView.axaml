@@ -66,6 +66,33 @@
                 IsVisible="{Binding HasRation}"
                 Padding="16">
             <StackPanel Spacing="12">
+                <TextBlock FontSize="18" FontWeight="SemiBold" Text="Рекомендации по профилю" />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           IsVisible="{Binding !HasRecommendations}"
+                           Text="Пока рекомендаций нет." />
+
+                <ItemsControl IsVisible="{Binding HasRecommendations}"
+                              ItemsSource="{Binding Recommendations}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RecommendationItemViewModel">
+                            <Border Background="{DynamicResource CardBackgroundBrush}"
+                                    CornerRadius="12"
+                                    Margin="0,0,0,8"
+                                    Padding="12">
+                                <TextBlock Text="{Binding Message}"
+                                           TextWrapping="Wrap" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                CornerRadius="18"
+                IsVisible="{Binding HasRation}"
+                Padding="16">
+            <StackPanel Spacing="12">
                 <TextBlock FontSize="18" FontWeight="SemiBold" Text="Предупреждения" />
                 <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
                            IsVisible="{Binding !HasWarnings}"
