@@ -62,6 +62,18 @@ public sealed class RationDay
         return clonedDay;
     }
 
+    public void ReplaceContentFromTemplate(DayTemplate template)
+    {
+        ArgumentNullException.ThrowIfNull(template);
+
+        meals.Clear();
+
+        foreach (var templateMeal in template.Meals)
+        {
+            meals.Add(templateMeal.ToMeal(Id));
+        }
+    }
+
     public NutritionInfo CalculateNutrition(
         IReadOnlyDictionary<Guid, Dish> dishesById,
         IReadOnlyDictionary<Guid, Product> productsById)

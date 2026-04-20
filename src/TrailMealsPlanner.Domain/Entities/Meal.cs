@@ -90,11 +90,18 @@ public sealed class Meal
     {
         ArgumentNullException.ThrowIfNull(sourceMeal);
 
+        ReplaceItems(sourceMeal.items.Select(item => item.Clone()));
+    }
+
+    internal void ReplaceItems(IEnumerable<MealItem> newItems)
+    {
+        ArgumentNullException.ThrowIfNull(newItems);
+
         items.Clear();
 
-        foreach (var item in sourceMeal.items)
+        foreach (var item in newItems)
         {
-            items.Add(item.Clone());
+            items.Add(item ?? throw new ArgumentNullException(nameof(newItems), "Meal item cannot be null."));
         }
     }
 }

@@ -70,6 +70,40 @@
         <Border Background="{DynamicResource SurfaceBackgroundBrush}"
                 CornerRadius="18"
                 IsVisible="{Binding HasRation}"
+                Padding="16">
+            <StackPanel Spacing="12">
+                <TextBlock FontSize="18" FontWeight="SemiBold" Text="Шаблоны дней" />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           IsVisible="{Binding HasTemplates}"
+                           Text="Сохраняйте типовые дни и применяйте их к любому дню текущего рациона." />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           IsVisible="{Binding !HasTemplates}"
+                           Text="Пока нет шаблонов. Сохраните любой день как шаблон." />
+
+                <ItemsControl ItemsSource="{Binding Templates}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DayTemplateOptionViewModel">
+                            <Border Background="{DynamicResource CardBackgroundBrush}"
+                                    CornerRadius="12"
+                                    Margin="0,0,0,8"
+                                    Padding="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding Summary}" />
+                                    <TextBlock FontSize="12"
+                                               Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Text="{Binding CreatedAt, StringFormat='Создан: {0:dd.MM.yyyy HH:mm}'}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                CornerRadius="18"
+                IsVisible="{Binding HasRation}"
                 Padding="12">
             <ListBox Background="Transparent"
                      BorderThickness="0"
@@ -115,6 +149,46 @@
                                         </Grid>
                                         <TextBlock Foreground="{DynamicResource StatusBrush}"
                                                    Text="{Binding CopyStatusMessage}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                                        CornerRadius="12"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock FontWeight="SemiBold" Text="Шаблон дня" />
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBox Watermark="Название шаблона"
+                                                     Text="{Binding TemplateName}" />
+                                            <Button Grid.Column="1"
+                                                    Margin="12,0,0,0"
+                                                    Command="{Binding SaveAsTemplateCommand}"
+                                                    Content="Сохранить как шаблон" />
+                                        </Grid>
+
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <ComboBox ItemsSource="{Binding AvailableTemplates}"
+                                                      SelectedItem="{Binding SelectedTemplate}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:DayTemplateOptionViewModel">
+                                                        <StackPanel Spacing="2">
+                                                            <TextBlock Text="{Binding Name}" />
+                                                            <TextBlock FontSize="12"
+                                                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                                                       Text="{Binding Summary}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+
+                                            <Button Grid.Column="1"
+                                                    Margin="12,0,0,0"
+                                                    Command="{Binding ApplyTemplateCommand}"
+                                                    Content="{Binding ApplyTemplateButtonText}" />
+                                        </Grid>
+                                        <TextBlock Foreground="{DynamicResource StatusBrush}"
+                                                   Text="{Binding TemplateStatusMessage}"
                                                    TextWrapping="Wrap" />
                                     </StackPanel>
                                 </Border>

@@ -15,15 +15,19 @@ namespace TrailMealsPlanner.Desktop.ViewModels;
 public sealed partial class RationDetailsViewModel : ViewModelBase
 {
     private readonly AddDishToMealHandler addDishToMealHandler;
+    private readonly ApplyDayTemplateHandler applyDayTemplateHandler;
     private readonly CopyDayHandler copyDayHandler;
     private readonly CopyMealHandler copyMealHandler;
     private readonly ExportRationHandler exportRationHandler;
+    private readonly GetDayTemplatesHandler getDayTemplatesHandler;
     private readonly GetDishesHandler getDishesHandler;
     private readonly GetRationAnalyticsHandler getRationAnalyticsHandler;
     private readonly GetRationByIdHandler getRationByIdHandler;
+    private readonly SaveDayAsTemplateHandler saveDayAsTemplateHandler;
     private IReadOnlyList<DishOptionViewModel> availableDishes = [];
     private IReadOnlyList<DayCopyTargetViewModel> availableCopyTargets = [];
     private IReadOnlyList<MealCopyTargetViewModel> availableMealCopyTargets = [];
+    private IReadOnlyList<DayTemplateOptionViewModel> availableTemplates = [];
 
     [ObservableProperty]
     private string statusMessage = string.Empty;
@@ -35,7 +39,10 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         AddDishToMealHandler addDishToMealHandler,
         CopyDayHandler copyDayHandler,
         CopyMealHandler copyMealHandler,
-        ExportRationHandler exportRationHandler)
+        ExportRationHandler exportRationHandler,
+        GetDayTemplatesHandler getDayTemplatesHandler,
+        SaveDayAsTemplateHandler saveDayAsTemplateHandler,
+        ApplyDayTemplateHandler applyDayTemplateHandler)
     {
         this.getRationByIdHandler = getRationByIdHandler;
         this.getRationAnalyticsHandler = getRationAnalyticsHandler;
@@ -44,6 +51,9 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         this.copyDayHandler = copyDayHandler;
         this.copyMealHandler = copyMealHandler;
         this.exportRationHandler = exportRationHandler;
+        this.getDayTemplatesHandler = getDayTemplatesHandler;
+        this.saveDayAsTemplateHandler = saveDayAsTemplateHandler;
+        this.applyDayTemplateHandler = applyDayTemplateHandler;
     }
 
     public Guid RationId { get; private set; }
@@ -54,9 +64,13 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
 
     public ObservableCollection<RationDayViewModel> Days { get; } = [];
 
+    public ObservableCollection<DayTemplateOptionViewModel> Templates { get; } = [];
+
     public bool HasRation => RationId != Guid.Empty;
 
     public bool IsEmpty => !HasRation;
+
+    public bool HasTemplates => Templates.Count > 0;
 
     public string ExportDirectory => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -66,6 +80,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     public async Task LoadAsync(Guid rationId, CancellationToken cancellationToken = default)
     {
         availableDishes = await LoadDishOptions(cancellationToken);
+        availableTemplates = await LoadTemplateOptions(cancellationToken);
 
         var details = await getRationByIdHandler.Handle(
             new GetRationByIdQuery { Id = rationId },
@@ -75,6 +90,14 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
             cancellationToken);
 
         Days.Clear();
+        Templates.Clear();
+
+        foreach (var template in availableTemplates)
+        {
+            Templates.Add(template);
+        }
+
+        OnPropertyChanged(nameof(HasTemplates));
 
         if (details is null)
         {
@@ -111,9 +134,12 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
                 availableMealCopyTargets,
                 AddDishToMealAsync,
                 targetDayId => CopyDayAsync(day.Id, targetDayId),
-                CopyMealAsync);
+                CopyMealAsync,
+                (dayId, templateName) => SaveDayAsTemplateAsync(dayId, templateName),
+                ApplyDayTemplateAsync);
             dayViewModel.UpdateCopyTargets(availableCopyTargets);
             dayViewModel.UpdateMealCopyTargets();
+            dayViewModel.UpdateTemplateOptions(availableTemplates);
             Days.Add(dayViewModel);
         }
 
@@ -196,6 +222,44 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         StatusMessage = "Приём пищи скопирован.";
     }
 
+    private async Task SaveDayAsTemplateAsync(Guid dayId, string templateName)
+    {
+        if (RationId == Guid.Empty)
+        {
+            return;
+        }
+
+        await saveDayAsTemplateHandler.Handle(new SaveDayAsTemplateCommand
+        {
+            RationId = RationId,
+            DayId = dayId,
+            Name = templateName
+        });
+
+        await LoadAsync(RationId);
+        StatusMessage = $"Шаблон \"{templateName}\" сохранён.";
+    }
+
+    private async Task ApplyDayTemplateAsync(Guid templateId, Guid targetDayId)
+    {
+        if (RationId == Guid.Empty)
+        {
+            return;
+        }
+
+        var templateName = availableTemplates.FirstOrDefault(template => template.Id == templateId)?.Name ?? "Шаблон";
+
+        await applyDayTemplateHandler.Handle(new ApplyDayTemplateCommand
+        {
+            RationId = RationId,
+            TemplateId = templateId,
+            TargetDayId = targetDayId
+        });
+
+        await LoadAsync(RationId);
+        StatusMessage = $"Шаблон \"{templateName}\" применён к дню.";
+    }
+
     private async Task ExportAsync(RationExportFormat format)
     {
         if (RationId == Guid.Empty)
@@ -218,5 +282,11 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     {
         var dishes = await getDishesHandler.Handle(new GetDishesQuery(), cancellationToken);
         return dishes.Select(dish => new DishOptionViewModel(dish)).ToList();
+    }
+
+    private async Task<IReadOnlyList<DayTemplateOptionViewModel>> LoadTemplateOptions(CancellationToken cancellationToken)
+    {
+        var templates = await getDayTemplatesHandler.Handle(new GetDayTemplatesQuery(), cancellationToken);
+        return templates.Select(template => new DayTemplateOptionViewModel(template)).ToList();
     }
 }

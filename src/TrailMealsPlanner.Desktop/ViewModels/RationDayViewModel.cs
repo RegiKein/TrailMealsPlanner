@@ -12,8 +12,10 @@ namespace TrailMealsPlanner.Desktop.ViewModels;
 public partial class RationDayViewModel : ViewModelBase
 {
     private readonly Func<Guid, Guid, decimal, Task> addDishToMeal;
+    private readonly Func<Guid, Guid, Task> applyTemplate;
     private readonly Func<Guid, Task> copyDay;
     private readonly IReadOnlyList<MealCopyTargetViewModel> availableMealCopyTargets;
+    private readonly Func<Guid, string, Task> saveDayAsTemplate;
 
     [ObservableProperty]
     private IReadOnlyList<DayCopyTargetViewModel> availableCopyTargets = [];
@@ -24,6 +26,21 @@ public partial class RationDayViewModel : ViewModelBase
     [ObservableProperty]
     private string copyStatusMessage = string.Empty;
 
+    [ObservableProperty]
+    private string templateName = string.Empty;
+
+    [ObservableProperty]
+    private IReadOnlyList<DayTemplateOptionViewModel> availableTemplates = [];
+
+    [ObservableProperty]
+    private DayTemplateOptionViewModel? selectedTemplate;
+
+    [ObservableProperty]
+    private string templateStatusMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool confirmTemplateApply;
+
     public RationDayViewModel(
         RationDayDto day,
         RationDayAnalyticsDto? analytics,
@@ -31,17 +48,22 @@ public partial class RationDayViewModel : ViewModelBase
         IReadOnlyList<MealCopyTargetViewModel> availableMealCopyTargets,
         Func<Guid, Guid, decimal, Task> addDishToMeal,
         Func<Guid, Task> copyDay,
-        Func<Guid, Guid, Task> copyMeal)
+        Func<Guid, Guid, Task> copyMeal,
+        Func<Guid, string, Task> saveDayAsTemplate,
+        Func<Guid, Guid, Task> applyTemplate)
     {
         Id = day.Id;
         DayNumber = day.DayNumber;
         Date = day.Date;
+        TemplateName = $"День {day.DayNumber}";
         Nutrition = analytics is null
             ? new NutritionSummaryViewModel(new NutritionInfoDto())
             : new NutritionSummaryViewModel(analytics.Nutrition);
         this.availableMealCopyTargets = availableMealCopyTargets;
         this.addDishToMeal = addDishToMeal;
         this.copyDay = copyDay;
+        this.saveDayAsTemplate = saveDayAsTemplate;
+        this.applyTemplate = applyTemplate;
 
         foreach (var meal in day.Meals)
         {
@@ -68,6 +90,8 @@ public partial class RationDayViewModel : ViewModelBase
     public ObservableCollection<MealViewModel> Meals { get; } = [];
 
     public string Display => $"День {DayNumber} - {Date:dd.MM.yyyy}";
+
+    public string ApplyTemplateButtonText => ConfirmTemplateApply ? "Подтвердить замену" : "Применить шаблон";
 
     public void UpdateDishOptions(IReadOnlyList<DishOptionViewModel> dishes)
     {
@@ -96,6 +120,26 @@ public partial class RationDayViewModel : ViewModelBase
         }
     }
 
+    public void UpdateTemplateOptions(IReadOnlyList<DayTemplateOptionViewModel> templates)
+    {
+        AvailableTemplates = templates.ToList();
+        SelectedTemplate = SelectedTemplate is not null
+            ? AvailableTemplates.FirstOrDefault(template => template.Id == SelectedTemplate.Id) ?? AvailableTemplates.FirstOrDefault()
+            : AvailableTemplates.FirstOrDefault();
+        ConfirmTemplateApply = false;
+    }
+
+    partial void OnConfirmTemplateApplyChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ApplyTemplateButtonText));
+    }
+
+    partial void OnSelectedTemplateChanged(DayTemplateOptionViewModel? value)
+    {
+        ConfirmTemplateApply = false;
+        TemplateStatusMessage = string.Empty;
+    }
+
     [RelayCommand]
     private async Task CopyDay()
     {
@@ -107,5 +151,41 @@ public partial class RationDayViewModel : ViewModelBase
 
         await copyDay(SelectedCopyTarget.Id);
         CopyStatusMessage = $"День скопирован в {SelectedCopyTarget.Display}.";
+    }
+
+    [RelayCommand]
+    private async Task SaveAsTemplate()
+    {
+        if (string.IsNullOrWhiteSpace(TemplateName))
+        {
+            TemplateStatusMessage = "Введите название шаблона.";
+            return;
+        }
+
+        var normalizedName = TemplateName.Trim();
+        await saveDayAsTemplate(Id, normalizedName);
+        TemplateName = normalizedName;
+        TemplateStatusMessage = $"Шаблон \"{normalizedName}\" сохранён.";
+    }
+
+    [RelayCommand]
+    private async Task ApplyTemplate()
+    {
+        if (SelectedTemplate is null)
+        {
+            TemplateStatusMessage = "Выберите шаблон.";
+            return;
+        }
+
+        if (!ConfirmTemplateApply)
+        {
+            ConfirmTemplateApply = true;
+            TemplateStatusMessage = $"Шаблон \"{SelectedTemplate.Name}\" заменит текущее содержимое дня. Нажмите ещё раз для подтверждения.";
+            return;
+        }
+
+        await applyTemplate(SelectedTemplate.Id, Id);
+        ConfirmTemplateApply = false;
+        TemplateStatusMessage = $"Шаблон \"{SelectedTemplate.Name}\" применён.";
     }
 }

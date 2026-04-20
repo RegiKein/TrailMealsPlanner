@@ -133,6 +133,24 @@ public sealed class RationProject
         targetMeal.ReplaceContentFrom(sourceMeal);
     }
 
+    public void ApplyDayTemplate(DayTemplate template, Guid targetDayId)
+    {
+        ArgumentNullException.ThrowIfNull(template);
+
+        if (targetDayId == Guid.Empty)
+        {
+            throw new ArgumentException("Target day id is required.", nameof(targetDayId));
+        }
+
+        var targetDay = days.FirstOrDefault(day => day.Id == targetDayId);
+        if (targetDay is null)
+        {
+            throw new InvalidOperationException($"Target day '{targetDayId}' was not found in ration project '{Id}'.");
+        }
+
+        DayTemplate.ApplyTemplateToDay(template, targetDay);
+    }
+
     public void GenerateDays()
     {
         days.Clear();
