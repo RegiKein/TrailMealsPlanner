@@ -3,17 +3,32 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using TrailMealsPlanner.Application.DTO;
 
 namespace TrailMealsPlanner.Desktop.ViewModels;
 
-public sealed class RationDayViewModel
+public partial class RationDayViewModel : ViewModelBase
 {
+    private readonly Func<Guid, Guid, decimal, Task> addDishToMeal;
+    private readonly Func<Guid, Task> copyDay;
+
+    [ObservableProperty]
+    private IReadOnlyList<DayCopyTargetViewModel> availableCopyTargets = [];
+
+    [ObservableProperty]
+    private DayCopyTargetViewModel? selectedCopyTarget;
+
+    [ObservableProperty]
+    private string copyStatusMessage = string.Empty;
+
     public RationDayViewModel(
         RationDayDto day,
         RationDayAnalyticsDto? analytics,
         IReadOnlyList<DishOptionViewModel> availableDishes,
-        Func<Guid, Guid, decimal, Task> addDishToMeal)
+        Func<Guid, Guid, decimal, Task> addDishToMeal,
+        Func<Guid, Task> copyDay)
     {
         Id = day.Id;
         DayNumber = day.DayNumber;
@@ -21,6 +36,8 @@ public sealed class RationDayViewModel
         Nutrition = analytics is null
             ? new NutritionSummaryViewModel(new NutritionInfoDto())
             : new NutritionSummaryViewModel(analytics.Nutrition);
+        this.addDishToMeal = addDishToMeal;
+        this.copyDay = copyDay;
 
         foreach (var meal in day.Meals)
         {
@@ -29,7 +46,7 @@ public sealed class RationDayViewModel
                 meal,
                 mealAnalytics,
                 availableDishes,
-                (dishId, quantity) => addDishToMeal(meal.Id, dishId, quantity)));
+                (dishId, quantity) => this.addDishToMeal(meal.Id, dishId, quantity)));
         }
     }
 
@@ -51,5 +68,29 @@ public sealed class RationDayViewModel
         {
             meal.UpdateDishOptions(dishes);
         }
+    }
+
+    public void UpdateCopyTargets(IReadOnlyList<DayCopyTargetViewModel> copyTargets)
+    {
+        AvailableCopyTargets = copyTargets
+            .Where(target => target.Id != Id)
+            .ToList();
+
+        SelectedCopyTarget = SelectedCopyTarget is not null
+            ? AvailableCopyTargets.FirstOrDefault(target => target.Id == SelectedCopyTarget.Id) ?? AvailableCopyTargets.FirstOrDefault()
+            : AvailableCopyTargets.FirstOrDefault();
+    }
+
+    [RelayCommand]
+    private async Task CopyDay()
+    {
+        if (SelectedCopyTarget is null)
+        {
+            CopyStatusMessage = "Выберите целевой день.";
+            return;
+        }
+
+        await copyDay(SelectedCopyTarget.Id);
+        CopyStatusMessage = $"День скопирован в {SelectedCopyTarget.Display}.";
     }
 }

@@ -93,6 +93,32 @@
                                                Text="{Binding Nutrition.DensityDisplay}" />
                                 </StackPanel>
 
+                                <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                                        CornerRadius="12"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock FontWeight="SemiBold" Text="Копировать день в..." />
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <ComboBox ItemsSource="{Binding AvailableCopyTargets}"
+                                                      SelectedItem="{Binding SelectedCopyTarget}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:DayCopyTargetViewModel">
+                                                        <TextBlock Text="{Binding Display}" />
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+
+                                            <Button Grid.Column="1"
+                                                    Margin="12,0,0,0"
+                                                    Command="{Binding CopyDayCommand}"
+                                                    Content="Копировать" />
+                                        </Grid>
+                                        <TextBlock Foreground="{DynamicResource StatusBrush}"
+                                                   Text="{Binding CopyStatusMessage}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+
                                 <ItemsControl ItemsSource="{Binding Meals}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:MealViewModel">

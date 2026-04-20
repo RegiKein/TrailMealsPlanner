@@ -8,6 +8,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddTransient<AddDishToMealHandler>();
+        services.AddTransient<CopyDayHandler>();
         services.AddTransient<CreateDishHandler>();
         services.AddTransient<CreateProductHandler>();
         services.AddTransient<CreateRationHandler>();

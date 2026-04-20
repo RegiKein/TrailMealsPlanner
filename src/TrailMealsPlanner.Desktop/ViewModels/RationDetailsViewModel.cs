@@ -15,11 +15,13 @@ namespace TrailMealsPlanner.Desktop.ViewModels;
 public sealed partial class RationDetailsViewModel : ViewModelBase
 {
     private readonly AddDishToMealHandler addDishToMealHandler;
+    private readonly CopyDayHandler copyDayHandler;
     private readonly ExportRationHandler exportRationHandler;
     private readonly GetDishesHandler getDishesHandler;
     private readonly GetRationAnalyticsHandler getRationAnalyticsHandler;
     private readonly GetRationByIdHandler getRationByIdHandler;
     private IReadOnlyList<DishOptionViewModel> availableDishes = [];
+    private IReadOnlyList<DayCopyTargetViewModel> availableCopyTargets = [];
 
     [ObservableProperty]
     private string statusMessage = string.Empty;
@@ -29,12 +31,14 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         GetRationAnalyticsHandler getRationAnalyticsHandler,
         GetDishesHandler getDishesHandler,
         AddDishToMealHandler addDishToMealHandler,
+        CopyDayHandler copyDayHandler,
         ExportRationHandler exportRationHandler)
     {
         this.getRationByIdHandler = getRationByIdHandler;
         this.getRationAnalyticsHandler = getRationAnalyticsHandler;
         this.getDishesHandler = getDishesHandler;
         this.addDishToMealHandler = addDishToMealHandler;
+        this.copyDayHandler = copyDayHandler;
         this.exportRationHandler = exportRationHandler;
     }
 
@@ -86,11 +90,21 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         Analytics = analytics is null
             ? new NutritionSummaryViewModel(new NutritionInfoDto())
             : new NutritionSummaryViewModel(analytics.Nutrition);
+        availableCopyTargets = details.Days
+            .Select(day => new DayCopyTargetViewModel(day.Id, day.DayNumber, day.Date))
+            .ToList();
 
         foreach (var day in details.Days)
         {
             var dayAnalytics = analytics?.Days.FirstOrDefault(item => item.DayId == day.Id);
-            Days.Add(new RationDayViewModel(day, dayAnalytics, availableDishes, AddDishToMealAsync));
+            var dayViewModel = new RationDayViewModel(
+                day,
+                dayAnalytics,
+                availableDishes,
+                AddDishToMealAsync,
+                targetDayId => CopyDayAsync(day.Id, targetDayId));
+            dayViewModel.UpdateCopyTargets(availableCopyTargets);
+            Days.Add(dayViewModel);
         }
 
         OnPropertyChanged(nameof(Name));
@@ -134,6 +148,24 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
 
         await LoadAsync(RationId);
         StatusMessage = "Блюдо добавлено в рацион.";
+    }
+
+    private async Task CopyDayAsync(Guid sourceDayId, Guid targetDayId)
+    {
+        if (RationId == Guid.Empty)
+        {
+            return;
+        }
+
+        await copyDayHandler.Handle(new CopyDayCommand
+        {
+            RationId = RationId,
+            SourceDayId = sourceDayId,
+            TargetDayId = targetDayId
+        });
+
+        await LoadAsync(RationId);
+        StatusMessage = "День скопирован.";
     }
 
     private async Task ExportAsync(RationExportFormat format)

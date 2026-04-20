@@ -157,4 +157,45 @@ public sealed class RationProjectTests
         Assert.Equal(dishId, item.DishId);
         Assert.Equal(2, item.Quantity);
     }
+
+    [Fact]
+    public void ReplaceDayContent_ReplacesTargetDayWithDeepCopy()
+    {
+        var project = new RationProject(
+            "Altai Trek",
+            new DateTime(2026, 4, 20),
+            durationDays: 3,
+            participantCount: 4,
+            profile: RationProfileFactory.CreateDefault(ActivityType.Hiking));
+
+        project.GenerateDays();
+
+        var sourceDay = project.Days[0];
+        var targetDay = project.Days[2];
+        var sourceMeal = sourceDay.Meals[0];
+        var dishId = Guid.NewGuid();
+
+        project.AddDishToMeal(sourceMeal.Id, dishId, 2);
+
+        var originalTargetDate = targetDay.Date;
+        var originalTargetDayNumber = targetDay.DayNumber;
+        var originalTargetId = targetDay.Id;
+
+        project.ReplaceDayContent(sourceDay.Id, targetDay.Id);
+
+        var replacedTargetDay = project.Days.Single(day => day.DayNumber == originalTargetDayNumber);
+        Assert.Equal(originalTargetDate, replacedTargetDay.Date);
+        Assert.Equal(originalTargetDayNumber, replacedTargetDay.DayNumber);
+        Assert.NotEqual(originalTargetId, replacedTargetDay.Id);
+        Assert.Equal(sourceDay.Meals.Count, replacedTargetDay.Meals.Count);
+
+        var replacedMeal = Assert.Single(replacedTargetDay.Meals, meal => meal.Type == sourceMeal.Type);
+        Assert.NotEqual(sourceMeal.Id, replacedMeal.Id);
+
+        var sourceItem = Assert.Single(sourceMeal.Items);
+        var replacedItem = Assert.Single(replacedMeal.Items);
+        Assert.Equal(sourceItem.DishId, replacedItem.DishId);
+        Assert.Equal(sourceItem.Quantity, replacedItem.Quantity);
+        Assert.NotEqual(sourceItem.Id, replacedItem.Id);
+    }
 }

@@ -64,6 +64,39 @@ public sealed class RationProject
         day.AddDishToMeal(mealId, dishId, quantity);
     }
 
+    public void ReplaceDayContent(Guid sourceDayId, Guid targetDayId)
+    {
+        if (sourceDayId == Guid.Empty)
+        {
+            throw new ArgumentException("Source day id is required.", nameof(sourceDayId));
+        }
+
+        if (targetDayId == Guid.Empty)
+        {
+            throw new ArgumentException("Target day id is required.", nameof(targetDayId));
+        }
+
+        if (sourceDayId == targetDayId)
+        {
+            throw new InvalidOperationException("Source and target day must be different.");
+        }
+
+        var sourceDay = days.FirstOrDefault(day => day.Id == sourceDayId);
+        if (sourceDay is null)
+        {
+            throw new InvalidOperationException($"Source day '{sourceDayId}' was not found in ration project '{Id}'.");
+        }
+
+        var targetIndex = days.FindIndex(day => day.Id == targetDayId);
+        if (targetIndex < 0)
+        {
+            throw new InvalidOperationException($"Target day '{targetDayId}' was not found in ration project '{Id}'.");
+        }
+
+        var targetDay = days[targetIndex];
+        days[targetIndex] = sourceDay.CloneTo(targetDay.Date, targetDay.DayNumber);
+    }
+
     public void GenerateDays()
     {
         days.Clear();

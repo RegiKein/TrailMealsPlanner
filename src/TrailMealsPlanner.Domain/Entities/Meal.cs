@@ -61,4 +61,16 @@ public sealed class Meal
 
         return nutrition;
     }
+
+    internal Meal CloneTo(Guid targetRationDayId)
+    {
+        var clonedMeal = new Meal(Type, targetRationDayId);
+
+        foreach (var item in items)
+        {
+            clonedMeal.items.Add(item.Clone());
+        }
+
+        return clonedMeal;
+    }
 }

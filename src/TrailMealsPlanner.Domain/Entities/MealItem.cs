@@ -17,10 +17,13 @@ public sealed class MealItem
             throw new ArgumentException("Meal item must reference either a dish or a product.");
         }
 
+        Id = Guid.NewGuid();
         DishId = hasDish ? dishId : null;
         ProductId = hasProduct ? productId : null;
         Quantity = quantity;
     }
+
+    public Guid Id { get; }
 
     public Guid? DishId { get; }
 
@@ -41,5 +44,10 @@ public sealed class MealItem
         }
 
         Quantity += quantity;
+    }
+
+    internal MealItem Clone()
+    {
+        return new MealItem(DishId, ProductId, Quantity);
     }
 }

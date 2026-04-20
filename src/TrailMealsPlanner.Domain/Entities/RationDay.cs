@@ -50,6 +50,18 @@ public sealed class RationDay
         meals.Add(new Meal(MealType.Snack, Id));
     }
 
+    public RationDay CloneTo(DateTime targetDate, int targetDayNumber)
+    {
+        var clonedDay = new RationDay(RationProjectId, targetDate, targetDayNumber);
+
+        foreach (var meal in meals)
+        {
+            clonedDay.meals.Add(meal.CloneTo(clonedDay.Id));
+        }
+
+        return clonedDay;
+    }
+
     public NutritionInfo CalculateNutrition(
         IReadOnlyDictionary<Guid, Dish> dishesById,
         IReadOnlyDictionary<Guid, Product> productsById)
