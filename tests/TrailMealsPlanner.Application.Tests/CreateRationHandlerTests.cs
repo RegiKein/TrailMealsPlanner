@@ -40,6 +40,7 @@ public sealed class CreateRationHandlerTests
         Assert.Equal(ActivityType.Mountain, saved.Profile.ActivityType);
         Assert.Equal(TemperatureRange.Cold, saved.Profile.Environment.TemperatureRange);
         Assert.Equal(WeightImportance.High, saved.Profile.Logistics.WeightImportance);
+        Assert.Equal(4, saved.Days.Count);
     }
 
     [Fact]

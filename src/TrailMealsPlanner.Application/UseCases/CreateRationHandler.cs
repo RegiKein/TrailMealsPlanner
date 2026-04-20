@@ -47,6 +47,7 @@ public sealed class CreateRationHandler
                     command.CookingPossibility,
                     command.ResupplyFrequency),
                 command.CompetitionFocus));
+        rationProject.GenerateDays();
 
         await repository.AddAsync(rationProject, cancellationToken);
 

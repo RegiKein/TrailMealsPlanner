@@ -10,6 +10,7 @@
     xmlns:conv="using:TrailMealsPlanner.Desktop.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="using:TrailMealsPlanner.Desktop.Views"
     xmlns:vm="using:TrailMealsPlanner.Desktop.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -20,190 +21,212 @@
         </DataTemplate>
     </Window.Resources>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-        <Grid ColumnDefinitions="420,*" RowDefinitions="Auto,*" Margin="24">
-            <Border Grid.Column="0"
-                    Padding="24"
-                    Background="{DynamicResource PanelBackgroundBrush}"
-                    CornerRadius="18">
-                <StackPanel Spacing="16">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="{Binding LanguageLabel}" />
-                        <ComboBox ItemsSource="{Binding LanguageOptions}"
-                                  ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                  SelectedItem="{Binding SelectedLanguageOption}" />
-                    </StackPanel>
+    <TabControl Margin="16">
+        <TabItem Header="Рационы">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                <Grid ColumnDefinitions="420,*" RowDefinitions="Auto,*" Margin="8">
+                    <Border Grid.Column="0"
+                            Padding="24"
+                            Background="{DynamicResource PanelBackgroundBrush}"
+                            CornerRadius="18">
+                        <StackPanel Spacing="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{Binding LanguageLabel}" />
+                                <ComboBox ItemsSource="{Binding LanguageOptions}"
+                                          ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                          SelectedItem="{Binding SelectedLanguageOption}" />
+                            </StackPanel>
 
-                    <StackPanel Spacing="6">
-                        <TextBlock FontSize="28" FontWeight="Bold" Text="{Binding NewProjectTitle}" />
-                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
-                                   Opacity="0.95"
-                                   Text="{Binding NewProjectSubtitle}"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
+                            <StackPanel Spacing="6">
+                                <TextBlock FontSize="28" FontWeight="Bold" Text="{Binding NewProjectTitle}" />
+                                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Opacity="0.95"
+                                           Text="{Binding NewProjectSubtitle}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
 
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="{Binding NameLabel}" />
-                        <TextBox Text="{Binding Name}" Watermark="{Binding NameWatermark}" />
-                    </StackPanel>
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{Binding NameLabel}" />
+                                <TextBox Text="{Binding Name}" Watermark="{Binding NameWatermark}" />
+                            </StackPanel>
 
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="{Binding StartDateLabel}" />
-                        <DatePicker SelectedDate="{Binding StartDate}" />
-                    </StackPanel>
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{Binding StartDateLabel}" />
+                                <DatePicker SelectedDate="{Binding StartDate}" />
+                            </StackPanel>
 
-                    <Grid ColumnDefinitions="*,*">
-                        <StackPanel Grid.Column="0" Spacing="8">
-                            <TextBlock Text="{Binding DurationDaysLabel}" />
-                            <NumericUpDown Minimum="1" Maximum="60" Value="{Binding DurationDays}" />
+                            <Grid ColumnDefinitions="*,*">
+                                <StackPanel Grid.Column="0" Spacing="8">
+                                    <TextBlock Text="{Binding DurationDaysLabel}" />
+                                    <NumericUpDown Minimum="1" Maximum="60" Value="{Binding DurationDays}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="8">
+                                    <TextBlock Text="{Binding ParticipantsLabel}" />
+                                    <NumericUpDown Minimum="1" Maximum="50" Value="{Binding ParticipantCount}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{Binding ActivityTypeLabel}" />
+                                <ComboBox ItemsSource="{Binding ActivityTypeOptions}"
+                                          ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                          SelectedItem="{Binding SelectedActivityTypeOption}" />
+                                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Opacity="0.95"
+                                           Text="{Binding SelectedActivityTypeOption.Value, Converter={StaticResource EnumConverter}}" />
+                            </StackPanel>
+
+                            <Border Padding="16"
+                                    Background="{DynamicResource SurfaceBackgroundBrush}"
+                                    CornerRadius="14">
+                                <StackPanel Spacing="12">
+                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding EnvironmentSectionTitle}" />
+                                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                                        <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
+                                            <TextBlock Text="{Binding TemperatureLabel}" />
+                                            <ComboBox ItemsSource="{Binding TemperatureRangeOptions}"
+                                                      ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                                      SelectedItem="{Binding SelectedTemperatureRangeOption}" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Grid.Row="0" Margin="12,0,0,0" Spacing="8">
+                                            <TextBlock Text="{Binding WaterAvailabilityLabel}" />
+                                            <ComboBox ItemsSource="{Binding WaterAvailabilityOptions}"
+                                                      ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                                      SelectedItem="{Binding SelectedWaterAvailabilityOption}" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,12,0,0" Spacing="8">
+                                            <TextBlock Text="{Binding AltitudeLabel}" />
+                                            <ComboBox ItemsSource="{Binding AltitudeRangeOptions}"
+                                                      ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                                      SelectedItem="{Binding SelectedAltitudeRangeOption}" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Grid.Row="1" Margin="12,12,0,0" Spacing="8">
+                                            <TextBlock Text="{Binding HumidityLabel}" />
+                                            <ComboBox ItemsSource="{Binding HumidityLevelOptions}"
+                                                      ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                                      SelectedItem="{Binding SelectedHumidityLevelOption}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Padding="16"
+                                    Background="{DynamicResource SurfaceBackgroundBrush}"
+                                    CornerRadius="14">
+                                <StackPanel Spacing="12">
+                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding LogisticsSectionTitle}" />
+                                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                                        <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
+                                            <TextBlock Text="{Binding WeightImportanceLabel}" />
+                                            <ComboBox ItemsSource="{Binding WeightImportanceOptions}"
+                                                      ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                                      SelectedItem="{Binding SelectedWeightImportanceOption}" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" Grid.Row="0" Margin="12,0,0,0" Spacing="8">
+                                            <TextBlock Text="{Binding CookingPossibilityLabel}" />
+                                            <ComboBox ItemsSource="{Binding CookingPossibilityOptions}"
+                                                      ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                                      SelectedItem="{Binding SelectedCookingPossibilityOption}" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,12,0,0" Spacing="8">
+                                            <TextBlock Text="{Binding ResupplyFrequencyLabel}" />
+                                            <ComboBox ItemsSource="{Binding ResupplyFrequencyOptions}"
+                                                      ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                                      SelectedItem="{Binding SelectedResupplyFrequencyOption}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border IsVisible="{Binding IsCompetitionSelected}"
+                                    Padding="16"
+                                    Background="{DynamicResource SurfaceBackgroundBrush}"
+                                    CornerRadius="14">
+                                <StackPanel Spacing="8">
+                                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding CompetitionNutritionFocusTitle}" />
+                                    <ComboBox ItemsSource="{Binding CompetitionNutritionFocusOptions}"
+                                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                                              SelectedItem="{Binding SelectedCompetitionNutritionFocusOption}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Button HorizontalAlignment="Stretch"
+                                    Command="{Binding CreateRationCommand}"
+                                    Content="{Binding CreateButtonText}" />
+
+                            <TextBlock FontWeight="SemiBold"
+                                       Foreground="{DynamicResource StatusBrush}"
+                                       Text="{Binding StatusMessage}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid Grid.Column="1" Margin="24,0,0,0" RowDefinitions="Auto,Auto,*">
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="28" FontWeight="Bold" Text="{Binding SavedProjectsTitle}" />
+                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Opacity="0.95"
+                                       Text="{Binding SavedProjectsSubtitle}" />
                         </StackPanel>
 
-                        <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="8">
-                            <TextBlock Text="{Binding ParticipantsLabel}" />
-                            <NumericUpDown Minimum="1" Maximum="50" Value="{Binding ParticipantCount}" />
-                        </StackPanel>
+                        <Border Grid.Row="1"
+                                Margin="0,16,0,0"
+                                Padding="12"
+                                Background="{DynamicResource SurfaceBackgroundBrush}"
+                                CornerRadius="18">
+                            <ListBox Background="Transparent"
+                                     BorderThickness="0"
+                                     ItemsSource="{Binding RationProjects}"
+                                     SelectedItem="{Binding SelectedRationProject}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:RationProjectListItemViewModel">
+                                        <Border Margin="0,0,0,12"
+                                                Padding="16"
+                                                Background="{DynamicResource CardBackgroundBrush}"
+                                                CornerRadius="14">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding Name}" />
+                                                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                           Opacity="0.95"
+                                                           Text="{Binding Summary}" />
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="{Binding ActivityTypeValue, Converter={StaticResource EnumConverter}}" />
+                                                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                           Opacity="0.95"
+                                                           Text="{Binding Metadata}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+
+                        <Border Grid.Row="2"
+                                Margin="0,16,0,0"
+                                Padding="20"
+                                Background="{DynamicResource PanelBackgroundBrush}"
+                                CornerRadius="18">
+                            <views:RationDetailsView DataContext="{Binding RationDetails}" />
+                        </Border>
                     </Grid>
+                </Grid>
+            </ScrollViewer>
+        </TabItem>
 
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="{Binding ActivityTypeLabel}" />
-                        <ComboBox ItemsSource="{Binding ActivityTypeOptions}"
-                                  ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                  SelectedItem="{Binding SelectedActivityTypeOption}" />
-                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
-                                   Opacity="0.95"
-                                   Text="{Binding SelectedActivityTypeOption.Value, Converter={StaticResource EnumConverter}}" />
-                    </StackPanel>
+        <TabItem Header="Продукты">
+            <views:ProductCatalogView DataContext="{Binding Products}" />
+        </TabItem>
 
-                    <Border Padding="16"
-                            Background="{DynamicResource SurfaceBackgroundBrush}"
-                            CornerRadius="14">
-                        <StackPanel Spacing="12">
-                            <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding EnvironmentSectionTitle}" />
-                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
-                                <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
-                                    <TextBlock Text="{Binding TemperatureLabel}" />
-                                    <ComboBox ItemsSource="{Binding TemperatureRangeOptions}"
-                                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                              SelectedItem="{Binding SelectedTemperatureRangeOption}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Grid.Row="0" Margin="12,0,0,0" Spacing="8">
-                                    <TextBlock Text="{Binding WaterAvailabilityLabel}" />
-                                    <ComboBox ItemsSource="{Binding WaterAvailabilityOptions}"
-                                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                              SelectedItem="{Binding SelectedWaterAvailabilityOption}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,12,0,0" Spacing="8">
-                                    <TextBlock Text="{Binding AltitudeLabel}" />
-                                    <ComboBox ItemsSource="{Binding AltitudeRangeOptions}"
-                                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                              SelectedItem="{Binding SelectedAltitudeRangeOption}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Grid.Row="1" Margin="12,12,0,0" Spacing="8">
-                                    <TextBlock Text="{Binding HumidityLabel}" />
-                                    <ComboBox ItemsSource="{Binding HumidityLevelOptions}"
-                                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                              SelectedItem="{Binding SelectedHumidityLevelOption}" />
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Padding="16"
-                            Background="{DynamicResource SurfaceBackgroundBrush}"
-                            CornerRadius="14">
-                        <StackPanel Spacing="12">
-                            <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding LogisticsSectionTitle}" />
-                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
-                                <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
-                                    <TextBlock Text="{Binding WeightImportanceLabel}" />
-                                    <ComboBox ItemsSource="{Binding WeightImportanceOptions}"
-                                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                              SelectedItem="{Binding SelectedWeightImportanceOption}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Grid.Row="0" Margin="12,0,0,0" Spacing="8">
-                                    <TextBlock Text="{Binding CookingPossibilityLabel}" />
-                                    <ComboBox ItemsSource="{Binding CookingPossibilityOptions}"
-                                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                              SelectedItem="{Binding SelectedCookingPossibilityOption}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,12,0,0" Spacing="8">
-                                    <TextBlock Text="{Binding ResupplyFrequencyLabel}" />
-                                    <ComboBox ItemsSource="{Binding ResupplyFrequencyOptions}"
-                                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                              SelectedItem="{Binding SelectedResupplyFrequencyOption}" />
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <Border IsVisible="{Binding IsCompetitionSelected}"
-                            Padding="16"
-                            Background="{DynamicResource SurfaceBackgroundBrush}"
-                            CornerRadius="14">
-                        <StackPanel Spacing="8">
-                            <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding CompetitionNutritionFocusTitle}" />
-                            <ComboBox ItemsSource="{Binding CompetitionNutritionFocusOptions}"
-                                      ItemTemplate="{StaticResource DisplayOptionTemplate}"
-                                      SelectedItem="{Binding SelectedCompetitionNutritionFocusOption}" />
-                        </StackPanel>
-                    </Border>
-
-                    <Button HorizontalAlignment="Stretch"
-                            Command="{Binding CreateRationCommand}"
-                            Content="{Binding CreateButtonText}" />
-
-                    <TextBlock FontWeight="SemiBold"
-                               Foreground="{DynamicResource StatusBrush}"
-                               Text="{Binding StatusMessage}"
-                               TextWrapping="Wrap" />
-                </StackPanel>
-            </Border>
-
-            <StackPanel Grid.Column="1" Margin="24,0,0,0" Spacing="16">
-                <StackPanel Spacing="4">
-                    <TextBlock FontSize="28" FontWeight="Bold" Text="{Binding SavedProjectsTitle}" />
-                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
-                               Opacity="0.95"
-                               Text="{Binding SavedProjectsSubtitle}" />
-                </StackPanel>
-
-                <Border Padding="12"
-                        Background="{DynamicResource SurfaceBackgroundBrush}"
-                        CornerRadius="18">
-                    <ListBox Background="Transparent"
-                             BorderThickness="0"
-                             ItemsSource="{Binding RationProjects}"
-                             SelectedItem="{Binding SelectedRationProject}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate x:DataType="vm:RationProjectListItemViewModel">
-                                <Border Margin="0,0,0,12"
-                                        Padding="16"
-                                        Background="{DynamicResource CardBackgroundBrush}"
-                                        CornerRadius="14">
-                                    <StackPanel Spacing="4">
-                                        <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding Name}" />
-                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
-                                                   Opacity="0.95"
-                                                   Text="{Binding Summary}" />
-                                        <TextBlock FontWeight="SemiBold"
-                                                   Text="{Binding ActivityTypeValue, Converter={StaticResource EnumConverter}}" />
-                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
-                                                   Opacity="0.95"
-                                                   Text="{Binding Metadata}"
-                                                   TextWrapping="Wrap" />
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Border>
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
+        <TabItem Header="Блюда">
+            <views:DishCatalogView DataContext="{Binding Dishes}" />
+        </TabItem>
+    </TabControl>
 
 </Window>

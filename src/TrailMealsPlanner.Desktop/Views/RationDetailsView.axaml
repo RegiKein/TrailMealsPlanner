@@ -1,0 +1,167 @@
+<UserControl
+    x:Class="TrailMealsPlanner.Desktop.Views.RationDetailsView"
+    x:DataType="vm:RationDetailsViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:TrailMealsPlanner.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    mc:Ignorable="d">
+
+    <StackPanel Spacing="16">
+        <StackPanel Spacing="4">
+            <TextBlock FontSize="28" FontWeight="Bold" Text="{Binding Name}" />
+            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                       IsVisible="{Binding HasRation}"
+                       Opacity="0.95"
+                       Text="Список дней рациона" />
+            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                       IsVisible="{Binding IsEmpty}"
+                       Opacity="0.95"
+                       Text="Выберите рацион или создайте новый, чтобы увидеть его дни." />
+        </StackPanel>
+
+        <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                CornerRadius="18"
+                IsVisible="{Binding HasRation}"
+                Padding="16">
+            <StackPanel Spacing="12">
+                <Grid ColumnDefinitions="*,*,*">
+                    <StackPanel Spacing="4">
+                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="Калории" />
+                        <TextBlock FontSize="22" FontWeight="Bold" Text="{Binding Analytics.CaloriesDisplay}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Spacing="4">
+                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="Вес" />
+                        <TextBlock FontSize="22" FontWeight="Bold" Text="{Binding Analytics.WeightDisplay}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Spacing="4">
+                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="Плотность" />
+                        <TextBlock FontSize="22" FontWeight="Bold" Text="{Binding Analytics.DensityDisplay}" />
+                    </StackPanel>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,*">
+                    <Button Command="{Binding ExportJsonCommand}"
+                            Content="Экспорт JSON"
+                            HorizontalAlignment="Stretch" />
+                    <Button Grid.Column="1"
+                            Margin="12,0,0,0"
+                            Command="{Binding ExportTextCommand}"
+                            Content="Экспорт TXT"
+                            HorizontalAlignment="Stretch" />
+                    <Button Grid.Column="2"
+                            Margin="12,0,0,0"
+                            Command="{Binding ExportPdfCommand}"
+                            Content="Экспорт PDF"
+                            HorizontalAlignment="Stretch" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <TextBlock Foreground="{DynamicResource StatusBrush}"
+                   FontWeight="SemiBold"
+                   IsVisible="{Binding HasRation}"
+                   Text="{Binding StatusMessage}"
+                   TextWrapping="Wrap" />
+
+        <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                CornerRadius="18"
+                IsVisible="{Binding HasRation}"
+                Padding="12">
+            <ListBox Background="Transparent"
+                     BorderThickness="0"
+                     ItemsSource="{Binding Days}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RationDayViewModel">
+                        <Border Background="{DynamicResource CardBackgroundBrush}"
+                                CornerRadius="14"
+                                Margin="0,0,0,12"
+                                Padding="16">
+                            <StackPanel Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Text="{Binding Display}" />
+                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Text="{Binding Nutrition.CaloriesDisplay}" />
+                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Text="{Binding Nutrition.WeightDisplay}" />
+                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Text="{Binding Nutrition.DensityDisplay}" />
+                                </StackPanel>
+
+                                <ItemsControl ItemsSource="{Binding Meals}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:MealViewModel">
+                                            <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                                                    CornerRadius="12"
+                                                    Padding="12">
+                                                <StackPanel Spacing="10">
+                                                    <StackPanel Spacing="4">
+                                                        <TextBlock FontWeight="SemiBold"
+                                                                   Text="{Binding Display}" />
+                                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                                   Text="{Binding Nutrition.CaloriesDisplay}" />
+                                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                                   Text="{Binding Nutrition.WeightDisplay}" />
+                                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                                   Text="{Binding Nutrition.DensityDisplay}" />
+                                                    </StackPanel>
+
+                                                    <ItemsControl ItemsSource="{Binding Items}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate x:DataType="vm:MealItemViewModel">
+                                                                <TextBlock Margin="12,0,0,0"
+                                                                           Text="{Binding Display}" />
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+
+                                                    <Grid ColumnDefinitions="*,110,Auto">
+                                                        <ComboBox ItemsSource="{Binding AvailableDishes}"
+                                                                  SelectedItem="{Binding SelectedDish}">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate x:DataType="vm:DishOptionViewModel">
+                                                                    <StackPanel Spacing="2">
+                                                                        <TextBlock Text="{Binding Name}" />
+                                                                        <TextBlock FontSize="12"
+                                                                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                                                                   Opacity="0.95"
+                                                                                   Text="{Binding Summary}" />
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+
+                                                        <NumericUpDown Grid.Column="1"
+                                                                       Margin="12,0,0,0"
+                                                                       Minimum="1"
+                                                                       Maximum="20"
+                                                                       Increment="1"
+                                                                       Value="{Binding Quantity}" />
+
+                                                        <Button Grid.Column="2"
+                                                                Margin="12,0,0,0"
+                                                                Command="{Binding AddDishCommand}"
+                                                                Content="Добавить блюдо" />
+                                                    </Grid>
+
+                                                    <TextBlock Foreground="{DynamicResource StatusBrush}"
+                                                               Text="{Binding StatusMessage}"
+                                                               TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </StackPanel>
+</UserControl>

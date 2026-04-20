@@ -18,6 +18,7 @@ public sealed class RationProjectTests
             durationDays: 3,
             participantCount: 4,
             profile: RationProfileFactory.CreateDefault(ActivityType.Hiking));
+        project.GenerateDays();
 
         Assert.Equal("Altai Trek", project.Name);
         Assert.Equal(startDate, project.StartDate);
@@ -26,6 +27,10 @@ public sealed class RationProjectTests
         Assert.Equal(4, project.ParticipantCount);
         Assert.Equal(ActivityType.Hiking, project.Profile.ActivityType);
         Assert.Equal(3, project.Days.Count);
+        Assert.Equal(4, project.Days[0].Meals.Count);
+        Assert.Equal(
+            new[] { MealType.Breakfast, MealType.Lunch, MealType.Dinner, MealType.Snack },
+            project.Days[0].Meals.Select(meal => meal.Type).ToArray());
 
         Assert.Collection(
             project.Days,
@@ -111,5 +116,45 @@ public sealed class RationProjectTests
             CompetitionNutritionFocus.CarbHeavy);
 
         Assert.Throws<ArgumentException>(action);
+    }
+
+    [Fact]
+    public void GenerateDays_RebuildsDaysWithoutDuplicates()
+    {
+        var project = new RationProject(
+            "Altai Trek",
+            new DateTime(2026, 4, 20),
+            durationDays: 3,
+            participantCount: 4,
+            profile: RationProfileFactory.CreateDefault(ActivityType.Hiking));
+
+        project.GenerateDays();
+        project.GenerateDays();
+
+        Assert.Equal(3, project.Days.Count);
+        Assert.Equal(new[] { 1, 2, 3 }, project.Days.Select(day => day.DayNumber).ToArray());
+        Assert.All(project.Days, day => Assert.Equal(4, day.Meals.Count));
+    }
+
+    [Fact]
+    public void AddDishToMeal_AddsDishToSelectedMeal()
+    {
+        var project = new RationProject(
+            "Altai Trek",
+            new DateTime(2026, 4, 20),
+            durationDays: 3,
+            participantCount: 4,
+            profile: RationProfileFactory.CreateDefault(ActivityType.Hiking));
+
+        project.GenerateDays();
+
+        var meal = project.Days[0].Meals[0];
+        var dishId = Guid.NewGuid();
+
+        project.AddDishToMeal(meal.Id, dishId, 2);
+
+        var item = Assert.Single(meal.Items);
+        Assert.Equal(dishId, item.DishId);
+        Assert.Equal(2, item.Quantity);
     }
 }

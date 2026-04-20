@@ -7,7 +7,15 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddTransient<AddDishToMealHandler>();
+        services.AddTransient<CreateDishHandler>();
+        services.AddTransient<CreateProductHandler>();
         services.AddTransient<CreateRationHandler>();
+        services.AddTransient<ExportRationHandler>();
+        services.AddTransient<GetDishesHandler>();
+        services.AddTransient<GetRationAnalyticsHandler>();
+        services.AddTransient<GetRationByIdHandler>();
+        services.AddTransient<GetProductsHandler>();
         services.AddTransient<GetRationsHandler>();
 
         return services;

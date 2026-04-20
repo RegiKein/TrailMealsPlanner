@@ -1,0 +1,98 @@
+<UserControl
+    x:Class="TrailMealsPlanner.Desktop.Views.ProductCatalogView"
+    x:DataType="vm:ProductCatalogViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:TrailMealsPlanner.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    mc:Ignorable="d">
+
+    <Grid ColumnDefinitions="380,*" Margin="0">
+        <Border Grid.Column="0"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                CornerRadius="18"
+                Padding="24">
+            <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
+                    <TextBlock FontSize="28" FontWeight="Bold" Text="Продукты" />
+                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                               Opacity="0.95"
+                               Text="Минимальный справочник продуктов с КБЖУ на 100 г."
+                               TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Название" />
+                    <TextBox Text="{Binding Name}" Watermark="Например, овсяные хлопья" />
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Калории на 100 г" />
+                    <NumericUpDown Minimum="0" Maximum="1000" Increment="10" Value="{Binding CaloriesPer100g}" />
+                </StackPanel>
+
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                    <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
+                        <TextBlock Text="Белки" />
+                        <NumericUpDown Minimum="0" Maximum="100" Increment="1" Value="{Binding Protein}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Grid.Row="0" Margin="12,0,0,0" Spacing="8">
+                        <TextBlock Text="Жиры" />
+                        <NumericUpDown Minimum="0" Maximum="100" Increment="1" Value="{Binding Fat}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,12,0,0" Spacing="8">
+                        <TextBlock Text="Углеводы" />
+                        <NumericUpDown Minimum="0" Maximum="100" Increment="1" Value="{Binding Carbs}" />
+                    </StackPanel>
+                </Grid>
+
+                <Button Command="{Binding CreateProductCommand}"
+                        Content="Добавить продукт"
+                        HorizontalAlignment="Stretch" />
+
+                <TextBlock Foreground="{DynamicResource StatusBrush}"
+                           FontWeight="SemiBold"
+                           Text="{Binding StatusMessage}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Column="1" Margin="24,0,0,0" Spacing="16">
+            <StackPanel Spacing="4">
+                <TextBlock FontSize="28" FontWeight="Bold" Text="Список продуктов" />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           Opacity="0.95"
+                           Text="Минимальный CRUD: добавление и просмотр." />
+            </StackPanel>
+
+            <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                    CornerRadius="18"
+                    Padding="12">
+                <ListBox Background="Transparent"
+                         BorderThickness="0"
+                         ItemsSource="{Binding Products}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ProductListItemViewModel">
+                            <Border Background="{DynamicResource CardBackgroundBrush}"
+                                    CornerRadius="14"
+                                    Margin="0,0,0,12"
+                                    Padding="16">
+                                <StackPanel Spacing="4">
+                                    <TextBlock FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Text="{Binding Name}" />
+                                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Opacity="0.95"
+                                               Text="{Binding Summary}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

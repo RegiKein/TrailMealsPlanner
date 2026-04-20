@@ -35,8 +35,6 @@ public sealed class RationProject
         StartDate = startDate.Date;
         DurationDays = durationDays;
         ParticipantCount = participantCount;
-
-        BuildDays();
     }
 
     public Guid Id { get; }
@@ -55,11 +53,35 @@ public sealed class RationProject
 
     public IReadOnlyList<RationDay> Days => days;
 
-    private void BuildDays()
+    public void AddDishToMeal(Guid mealId, Guid dishId, decimal quantity)
     {
+        var day = days.FirstOrDefault(item => item.Meals.Any(meal => meal.Id == mealId));
+        if (day is null)
+        {
+            throw new InvalidOperationException($"Meal '{mealId}' was not found in ration project '{Id}'.");
+        }
+
+        day.AddDishToMeal(mealId, dishId, quantity);
+    }
+
+    public void GenerateDays()
+    {
+        days.Clear();
+
         for (var dayNumber = 1; dayNumber <= DurationDays; dayNumber++)
         {
-            days.Add(new RationDay(Id, StartDate.AddDays(dayNumber - 1), dayNumber));
+            var day = new RationDay(Id, StartDate.AddDays(dayNumber - 1), dayNumber);
+            day.InitializeDefaultMeals();
+            days.Add(day);
         }
+    }
+
+    public NutritionInfo CalculateNutrition(
+        IReadOnlyDictionary<Guid, Dish> dishesById,
+        IReadOnlyDictionary<Guid, Product> productsById)
+    {
+        return days.Aggregate(
+            NutritionInfo.Zero,
+            (current, day) => current.Add(day.CalculateNutrition(dishesById, productsById)));
     }
 }

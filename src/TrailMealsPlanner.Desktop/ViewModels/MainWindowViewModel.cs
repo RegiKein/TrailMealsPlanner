@@ -19,6 +19,9 @@ namespace TrailMealsPlanner.Desktop.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly CreateRationHandler createRationHandler;
+    private readonly DishCatalogViewModel dishes;
+    private readonly ProductCatalogViewModel products;
+    private readonly RationDetailsViewModel rationDetails;
     private readonly GetRationsHandler getRationsHandler;
     private readonly LocalizationService localizationService;
     private IReadOnlyList<RationProjectListItemDto> loadedProjects = [];
@@ -107,18 +110,31 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(
         CreateRationHandler createRationHandler,
         GetRationsHandler getRationsHandler,
+        DishCatalogViewModel dishes,
+        ProductCatalogViewModel products,
+        RationDetailsViewModel rationDetails,
         LocalizationService localizationService)
     {
         this.createRationHandler = createRationHandler;
         this.getRationsHandler = getRationsHandler;
+        this.dishes = dishes;
+        this.products = products;
+        this.rationDetails = rationDetails;
         this.localizationService = localizationService;
 
         localizationService.CultureChanged += OnCultureChanged;
+        products.ProductsChanged += OnProductsChanged;
         RefreshLocalizedState();
         SetStatus("Status_EnterParameters");
     }
 
     public ObservableCollection<RationProjectListItemViewModel> RationProjects { get; } = [];
+
+    public DishCatalogViewModel Dishes => dishes;
+
+    public ProductCatalogViewModel Products => products;
+
+    public RationDetailsViewModel RationDetails => rationDetails;
 
     public string WindowTitle => localizationService.Get("Window_Title");
     public string LanguageLabel => localizationService.Get("Language_Label");
@@ -145,6 +161,16 @@ public partial class MainWindowViewModel : ViewModelBase
     public string SavedProjectsSubtitle => localizationService.Get("SavedProjects_Subtitle");
 
     public bool IsCompetitionSelected => SelectedActivityTypeOption?.Value == ActivityType.Competition;
+
+    partial void OnSelectedRationProjectChanged(RationProjectListItemViewModel? value)
+    {
+        if (value is null)
+        {
+            return;
+        }
+
+        _ = OpenRationDetailsAsync(value.Id);
+    }
 
     partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
     {
@@ -190,7 +216,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         var rationName = Name.Trim();
 
-        await createRationHandler.Handle(new CreateRationCommand
+        var createdId = await createRationHandler.Handle(new CreateRationCommand
         {
             Name = rationName,
             StartDate = StartDate?.DateTime ?? DateTime.Today,
@@ -209,7 +235,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
         await ReloadProjects();
 
-        SelectedRationProject = RationProjects.FirstOrDefault(project => project.Name == rationName);
+        SelectedRationProject = RationProjects.FirstOrDefault(project => project.Id == createdId);
+        await OpenRationDetailsAsync(createdId);
         SetStatus("Status_RationSaved", rationName);
 
         Name = string.Empty;
@@ -222,6 +249,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public async Task InitializeAsync()
     {
         await ReloadProjects();
+        await products.InitializeAsync();
+        await dishes.InitializeAsync();
     }
 
     [RelayCommand]
@@ -235,6 +264,11 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         loadedProjects = await getRationsHandler.Handle(new GetRationsQuery());
         RebuildProjectList();
+    }
+
+    private async Task OpenRationDetailsAsync(Guid rationId)
+    {
+        await rationDetails.LoadAsync(rationId);
     }
 
     private void RebuildProjectList()
@@ -332,6 +366,11 @@ public partial class MainWindowViewModel : ViewModelBase
     private void OnCultureChanged(object? sender, EventArgs e)
     {
         RefreshLocalizedState();
+    }
+
+    private async void OnProductsChanged(object? sender, EventArgs e)
+    {
+        await dishes.ReloadReferenceDataAsync();
     }
 
     private void SetStatus(string key, params object[] args)

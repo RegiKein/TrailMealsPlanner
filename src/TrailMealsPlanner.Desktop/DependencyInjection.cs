@@ -14,8 +14,14 @@ public static class DependencyInjection
         services.AddSingleton(LocalizationService.Instance);
         services.AddApplication();
         services.AddInfrastructure();
+        services.AddSingleton<DishCatalogViewModel>();
         services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<ProductCatalogViewModel>();
+        services.AddSingleton<RationDetailsViewModel>();
+        services.AddSingleton<DishCatalogView>();
         services.AddSingleton<MainWindow>();
+        services.AddSingleton<ProductCatalogView>();
+        services.AddSingleton<RationDetailsView>();
 
         return services;
     }
