@@ -1,0 +1,37 @@
+<UserControl
+    x:Class="TrailMealsPlanner.Desktop.Views.SettingsView"
+    x:DataType="vm:SettingsViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:TrailMealsPlanner.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    mc:Ignorable="d">
+
+    <Border Background="{DynamicResource PanelBackgroundBrush}"
+            CornerRadius="18"
+            Padding="24">
+        <StackPanel Spacing="16">
+            <StackPanel Spacing="4">
+                <TextBlock FontSize="28" FontWeight="Bold" Text="{Binding Title}" />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           Text="Минимальный экран настроек, чтобы не держать служебные параметры внутри экрана рационов." />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+                <TextBlock Text="{Binding LanguageLabel}" />
+                <ComboBox ItemsSource="{Binding LanguageOptions}"
+                          SelectedItem="{Binding SelectedLanguageOption}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Display}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+
+            <TextBlock Foreground="{DynamicResource StatusBrush}"
+                       Text="{Binding StatusMessage}" />
+        </StackPanel>
+    </Border>
+</UserControl>

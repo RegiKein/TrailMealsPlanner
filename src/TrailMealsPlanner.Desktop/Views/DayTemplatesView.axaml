@@ -1,0 +1,45 @@
+<UserControl
+    x:Class="TrailMealsPlanner.Desktop.Views.DayTemplatesView"
+    x:DataType="vm:DayTemplatesViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:TrailMealsPlanner.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    mc:Ignorable="d">
+
+    <StackPanel Spacing="16">
+        <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="4">
+                <TextBlock FontSize="28" FontWeight="Bold" Text="Шаблоны дней" />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           Text="Отдельный экран шаблонов облегчает повторное использование типовых дней." />
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Command="{Binding RefreshCommand}"
+                    Content="Обновить" />
+        </Grid>
+
+        <TextBlock Foreground="{DynamicResource StatusBrush}"
+                   Text="{Binding StatusMessage}" />
+
+        <ItemsControl ItemsSource="{Binding Templates}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:DayTemplateOptionViewModel">
+                    <Border Background="{DynamicResource CardBackgroundBrush}"
+                            CornerRadius="12"
+                            Margin="0,0,0,12"
+                            Padding="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding Name}" />
+                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding Summary}" />
+                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Text="{Binding CreatedAt, StringFormat='Создан: {0:dd.MM.yyyy HH:mm}'}" />
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

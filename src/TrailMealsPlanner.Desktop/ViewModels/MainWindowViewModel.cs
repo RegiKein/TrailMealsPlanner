@@ -1,348 +1,166 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using TrailMealsPlanner.Application.DTO;
-using TrailMealsPlanner.Application.UseCases;
-using TrailMealsPlanner.Desktop.Extensions;
-using TrailMealsPlanner.Desktop.Models;
 using TrailMealsPlanner.Desktop.Services;
-using TrailMealsPlanner.Domain.Enums;
-using TrailMealsPlanner.Domain.Services;
-using TrailMealsPlanner.Domain.ValueObjects;
 
 namespace TrailMealsPlanner.Desktop.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly CreateRationHandler createRationHandler;
+    private readonly DayTemplatesViewModel dayTemplates;
     private readonly DishCatalogViewModel dishes;
-    private readonly GetRationsHandler getRationsHandler;
-    private readonly LocalizationService localizationService;
     private readonly ParticipantsCatalogViewModel participants;
     private readonly ProductCatalogViewModel products;
     private readonly RationDetailsViewModel rationDetails;
-    private IReadOnlyList<RationProjectListItemDto> loadedProjects = [];
-    private bool isRefreshingLocalizationState;
-    private object[] statusMessageArgs = [];
-    private string statusMessageKey = "Status_EnterParameters";
+    private readonly RationListViewModel rationList;
+    private readonly SettingsViewModel settings;
+    private readonly LocalizationService localizationService;
 
-    [ObservableProperty] private string name = string.Empty;
-    [ObservableProperty] private DateTimeOffset? startDate = DateTimeOffset.Now;
-    [ObservableProperty] private int durationDays = 3;
-    [ObservableProperty] private int participantCount = 2;
-    [ObservableProperty] private IReadOnlyList<LanguageOption> languageOptions = [];
-    [ObservableProperty] private LanguageOption? selectedLanguageOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<ActivityType>> activityTypeOptions = [];
-    [ObservableProperty] private EnumOption<ActivityType>? selectedActivityTypeOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<TemperatureRange>> temperatureRangeOptions = [];
-    [ObservableProperty] private EnumOption<TemperatureRange>? selectedTemperatureRangeOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<WaterAvailability>> waterAvailabilityOptions = [];
-    [ObservableProperty] private EnumOption<WaterAvailability>? selectedWaterAvailabilityOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<AltitudeRange>> altitudeRangeOptions = [];
-    [ObservableProperty] private EnumOption<AltitudeRange>? selectedAltitudeRangeOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<HumidityLevel>> humidityLevelOptions = [];
-    [ObservableProperty] private EnumOption<HumidityLevel>? selectedHumidityLevelOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<WeightImportance>> weightImportanceOptions = [];
-    [ObservableProperty] private EnumOption<WeightImportance>? selectedWeightImportanceOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<CookingPossibility>> cookingPossibilityOptions = [];
-    [ObservableProperty] private EnumOption<CookingPossibility>? selectedCookingPossibilityOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<ResupplyFrequency>> resupplyFrequencyOptions = [];
-    [ObservableProperty] private EnumOption<ResupplyFrequency>? selectedResupplyFrequencyOption;
-    [ObservableProperty] private IReadOnlyList<EnumOption<CompetitionNutritionFocus>> competitionNutritionFocusOptions = [];
-    [ObservableProperty] private EnumOption<CompetitionNutritionFocus>? selectedCompetitionNutritionFocusOption;
-    [ObservableProperty] private string statusMessage = string.Empty;
-    [ObservableProperty] private RationProjectListItemViewModel? selectedRationProject;
+    [ObservableProperty]
+    private ViewModelBase currentScreen;
+
+    [ObservableProperty]
+    private string currentScreenTitle;
 
     public MainWindowViewModel(
-        CreateRationHandler createRationHandler,
-        GetRationsHandler getRationsHandler,
-        DishCatalogViewModel dishes,
-        ProductCatalogViewModel products,
-        ParticipantsCatalogViewModel participants,
+        RationListViewModel rationList,
         RationDetailsViewModel rationDetails,
+        ProductCatalogViewModel products,
+        DishCatalogViewModel dishes,
+        ParticipantsCatalogViewModel participants,
+        DayTemplatesViewModel dayTemplates,
+        SettingsViewModel settings,
         LocalizationService localizationService)
     {
-        this.createRationHandler = createRationHandler;
-        this.getRationsHandler = getRationsHandler;
-        this.dishes = dishes;
-        this.products = products;
-        this.participants = participants;
+        this.rationList = rationList;
         this.rationDetails = rationDetails;
+        this.products = products;
+        this.dishes = dishes;
+        this.participants = participants;
+        this.dayTemplates = dayTemplates;
+        this.settings = settings;
         this.localizationService = localizationService;
 
-        localizationService.CultureChanged += OnCultureChanged;
-        products.ProductsChanged += OnProductsChanged;
-        participants.PreferencesChanged += OnParticipantsChanged;
-        RefreshLocalizedState();
-        SetStatus("Status_EnterParameters");
-    }
+        currentScreen = rationList;
+        currentScreenTitle = GetTitleFor(rationList);
 
-    public ObservableCollection<RationProjectListItemViewModel> RationProjects { get; } = [];
-    public DishCatalogViewModel Dishes => dishes;
-    public ProductCatalogViewModel Products => products;
-    public ParticipantsCatalogViewModel Participants => participants;
-    public RationDetailsViewModel RationDetails => rationDetails;
+        rationList.RationRequested += OnRationRequested;
+        participants.PreferencesChanged += OnParticipantsChanged;
+        products.ProductsChanged += OnProductsChanged;
+        localizationService.CultureChanged += OnCultureChanged;
+    }
 
     public string WindowTitle => localizationService.Get("Window_Title");
-    public string LanguageLabel => localizationService.Get("Language_Label");
-    public string NewProjectTitle => localizationService.Get("NewProject_Title");
-    public string NewProjectSubtitle => localizationService.Get("NewProject_Subtitle");
-    public string NameLabel => localizationService.Get("Label_Name");
-    public string NameWatermark => localizationService.Get("Watermark_Name");
-    public string StartDateLabel => localizationService.Get("Label_StartDate");
-    public string DurationDaysLabel => localizationService.Get("Label_DurationDays");
-    public string ParticipantsLabel => localizationService.Get("Label_Participants");
-    public string ActivityTypeLabel => localizationService.Get("Label_ActivityType");
-    public string EnvironmentSectionTitle => localizationService.Get("Section_Environment");
-    public string TemperatureLabel => localizationService.Get("Label_Temperature");
-    public string WaterAvailabilityLabel => localizationService.Get("Label_WaterAvailability");
-    public string AltitudeLabel => localizationService.Get("Label_Altitude");
-    public string HumidityLabel => localizationService.Get("Label_Humidity");
-    public string LogisticsSectionTitle => localizationService.Get("Section_Logistics");
-    public string WeightImportanceLabel => localizationService.Get("Label_WeightImportance");
-    public string CookingPossibilityLabel => localizationService.Get("Label_CookingPossibility");
-    public string ResupplyFrequencyLabel => localizationService.Get("Label_ResupplyFrequency");
-    public string CompetitionNutritionFocusTitle => localizationService.Get("Section_CompetitionNutritionFocus");
-    public string CreateButtonText => localizationService.Get("Button_Create");
-    public string SavedProjectsTitle => localizationService.Get("SavedProjects_Title");
-    public string SavedProjectsSubtitle => localizationService.Get("SavedProjects_Subtitle");
-    public bool IsCompetitionSelected => SelectedActivityTypeOption?.Value == ActivityType.Competition;
-
-    partial void OnSelectedRationProjectChanged(RationProjectListItemViewModel? value)
-    {
-        if (value is not null)
-        {
-            _ = OpenRationDetailsAsync(value.Id);
-        }
-    }
-
-    partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
-    {
-        if (!isRefreshingLocalizationState && value is not null)
-        {
-            localizationService.SetCulture(value.CultureName);
-        }
-    }
-
-    partial void OnSelectedActivityTypeOptionChanged(EnumOption<ActivityType>? value)
-    {
-        if (!isRefreshingLocalizationState && value is not null)
-        {
-            ApplyProfile(RationProfileFactory.CreateDefault(value.Value));
-            OnPropertyChanged(nameof(IsCompetitionSelected));
-        }
-    }
-
-    [RelayCommand]
-    private async Task CreateRation()
-    {
-        if (string.IsNullOrWhiteSpace(Name))
-        {
-            SetStatus("Status_NameRequired");
-            return;
-        }
-
-        if (DurationDays <= 0)
-        {
-            SetStatus("Status_DurationInvalid");
-            return;
-        }
-
-        if (ParticipantCount <= 0)
-        {
-            SetStatus("Status_ParticipantCountInvalid");
-            return;
-        }
-
-        var rationName = Name.Trim();
-        var createdId = await createRationHandler.Handle(new CreateRationCommand
-        {
-            Name = rationName,
-            StartDate = StartDate?.DateTime ?? DateTime.Today,
-            DurationDays = DurationDays,
-            ParticipantCount = ParticipantCount,
-            ActivityType = SelectedActivityTypeOption?.Value ?? ActivityType.Hiking,
-            TemperatureRange = SelectedTemperatureRangeOption?.Value ?? TemperatureRange.Mild,
-            WaterAvailability = SelectedWaterAvailabilityOption?.Value ?? WaterAvailability.Limited,
-            AltitudeRange = SelectedAltitudeRangeOption?.Value ?? AltitudeRange.Low,
-            HumidityLevel = SelectedHumidityLevelOption?.Value ?? HumidityLevel.Normal,
-            WeightImportance = SelectedWeightImportanceOption?.Value ?? WeightImportance.Medium,
-            CookingPossibility = SelectedCookingPossibilityOption?.Value ?? CookingPossibility.Full,
-            ResupplyFrequency = SelectedResupplyFrequencyOption?.Value ?? ResupplyFrequency.Rare,
-            CompetitionFocus = IsCompetitionSelected ? SelectedCompetitionNutritionFocusOption?.Value : null
-        });
-
-        await ReloadProjects();
-        SelectedRationProject = RationProjects.FirstOrDefault(project => project.Id == createdId);
-        await OpenRationDetailsAsync(createdId);
-        SetStatus("Status_RationSaved", rationName);
-
-        Name = string.Empty;
-        StartDate = DateTimeOffset.Now;
-        DurationDays = 3;
-        ParticipantCount = 2;
-        ApplyDefaultProfile(ActivityType.Hiking);
-    }
 
     public async Task InitializeAsync()
     {
-        await ReloadProjects();
+        await rationList.InitializeAsync();
         await products.InitializeAsync();
         await dishes.InitializeAsync();
         await participants.InitializeAsync();
+        await dayTemplates.InitializeAsync();
     }
 
     [RelayCommand]
-    private async Task LoadRations()
+    private void ShowRations()
     {
-        await ReloadProjects();
-        SetStatus("Status_RationsLoaded", RationProjects.Count);
+        CurrentScreen = rationList;
+        CurrentScreenTitle = GetTitleFor(rationList);
     }
 
-    private async Task ReloadProjects()
+    [RelayCommand]
+    private void ShowRationDetails()
     {
-        loadedProjects = await getRationsHandler.Handle(new GetRationsQuery());
-        RebuildProjectList();
-    }
-
-    private Task OpenRationDetailsAsync(Guid rationId) => rationDetails.LoadAsync(rationId);
-
-    private void RebuildProjectList()
-    {
-        RationProjects.Clear();
-        foreach (var project in loadedProjects)
+        if (!rationDetails.HasRation)
         {
-            RationProjects.Add(new RationProjectListItemViewModel(project, localizationService));
+            ShowRations();
+            return;
+        }
+
+        CurrentScreen = rationDetails;
+        CurrentScreenTitle = GetTitleFor(rationDetails);
+    }
+
+    [RelayCommand]
+    private void ShowProducts()
+    {
+        CurrentScreen = products;
+        CurrentScreenTitle = GetTitleFor(products);
+    }
+
+    [RelayCommand]
+    private void ShowDishes()
+    {
+        CurrentScreen = dishes;
+        CurrentScreenTitle = GetTitleFor(dishes);
+    }
+
+    [RelayCommand]
+    private void ShowPreferences()
+    {
+        CurrentScreen = participants;
+        CurrentScreenTitle = GetTitleFor(participants);
+    }
+
+    [RelayCommand]
+    private async Task ShowTemplatesAsync()
+    {
+        await dayTemplates.RefreshAsync();
+        CurrentScreen = dayTemplates;
+        CurrentScreenTitle = GetTitleFor(dayTemplates);
+    }
+
+    [RelayCommand]
+    private void ShowSettings()
+    {
+        CurrentScreen = settings;
+        CurrentScreenTitle = GetTitleFor(settings);
+    }
+
+    private async void OnRationRequested(object? sender, Guid rationId)
+    {
+        await rationDetails.LoadAsync(rationId);
+        CurrentScreen = rationDetails;
+        CurrentScreenTitle = GetTitleFor(rationDetails);
+    }
+
+    private async void OnParticipantsChanged(object? sender, EventArgs e)
+    {
+        if (rationDetails.HasRation)
+        {
+            await rationDetails.LoadAsync(rationDetails.RationId);
         }
     }
-
-    private void ApplyDefaultProfile(ActivityType activityType)
-    {
-        isRefreshingLocalizationState = true;
-        SelectedActivityTypeOption = FindOption(ActivityTypeOptions, activityType);
-        isRefreshingLocalizationState = false;
-        ApplyProfile(RationProfileFactory.CreateDefault(activityType));
-        OnPropertyChanged(nameof(IsCompetitionSelected));
-    }
-
-    private void ApplyProfile(RationProfile profile)
-    {
-        isRefreshingLocalizationState = true;
-        SelectedTemperatureRangeOption = FindOption(TemperatureRangeOptions, profile.Environment.TemperatureRange);
-        SelectedWaterAvailabilityOption = FindOption(WaterAvailabilityOptions, profile.Environment.WaterAvailability);
-        SelectedAltitudeRangeOption = FindOption(AltitudeRangeOptions, profile.Environment.AltitudeRange);
-        SelectedHumidityLevelOption = FindOption(HumidityLevelOptions, profile.Environment.HumidityLevel);
-        SelectedWeightImportanceOption = FindOption(WeightImportanceOptions, profile.Logistics.WeightImportance);
-        SelectedCookingPossibilityOption = FindOption(CookingPossibilityOptions, profile.Logistics.CookingPossibility);
-        SelectedResupplyFrequencyOption = FindOption(ResupplyFrequencyOptions, profile.Logistics.ResupplyFrequency);
-        SelectedCompetitionNutritionFocusOption = profile.CompetitionFocus is null ? null : FindOption(CompetitionNutritionFocusOptions, profile.CompetitionFocus.Value);
-        isRefreshingLocalizationState = false;
-        OnPropertyChanged(nameof(IsCompetitionSelected));
-    }
-
-    private void RefreshLocalizedState()
-    {
-        var selectedActivityType = SelectedActivityTypeOption?.Value ?? ActivityType.Hiking;
-        var selectedTemperatureRange = SelectedTemperatureRangeOption?.Value ?? TemperatureRange.Mild;
-        var selectedWaterAvailability = SelectedWaterAvailabilityOption?.Value ?? WaterAvailability.Limited;
-        var selectedAltitudeRange = SelectedAltitudeRangeOption?.Value ?? AltitudeRange.Low;
-        var selectedHumidityLevel = SelectedHumidityLevelOption?.Value ?? HumidityLevel.Normal;
-        var selectedWeightImportance = SelectedWeightImportanceOption?.Value ?? WeightImportance.Medium;
-        var selectedCookingPossibility = SelectedCookingPossibilityOption?.Value ?? CookingPossibility.Full;
-        var selectedResupplyFrequency = SelectedResupplyFrequencyOption?.Value ?? ResupplyFrequency.Rare;
-        var selectedCompetitionFocus = SelectedCompetitionNutritionFocusOption?.Value;
-
-        isRefreshingLocalizationState = true;
-        LanguageOptions = [new LanguageOption("en", localizationService.Get("Language_English")), new LanguageOption("ru", localizationService.Get("Language_Russian"))];
-        ActivityTypeOptions = Enum.GetValues<ActivityType>().Select(value => new EnumOption<ActivityType>(value, value.ToDisplay())).ToList();
-        TemperatureRangeOptions = Enum.GetValues<TemperatureRange>().Select(value => new EnumOption<TemperatureRange>(value, value.ToDisplay())).ToList();
-        WaterAvailabilityOptions = Enum.GetValues<WaterAvailability>().Select(value => new EnumOption<WaterAvailability>(value, value.ToDisplay())).ToList();
-        AltitudeRangeOptions = Enum.GetValues<AltitudeRange>().Select(value => new EnumOption<AltitudeRange>(value, value.ToDisplay())).ToList();
-        HumidityLevelOptions = Enum.GetValues<HumidityLevel>().Select(value => new EnumOption<HumidityLevel>(value, value.ToDisplay())).ToList();
-        WeightImportanceOptions = Enum.GetValues<WeightImportance>().Select(value => new EnumOption<WeightImportance>(value, value.ToDisplay())).ToList();
-        CookingPossibilityOptions = Enum.GetValues<CookingPossibility>().Select(value => new EnumOption<CookingPossibility>(value, value.ToDisplay())).ToList();
-        ResupplyFrequencyOptions = Enum.GetValues<ResupplyFrequency>().Select(value => new EnumOption<ResupplyFrequency>(value, value.ToDisplay())).ToList();
-        CompetitionNutritionFocusOptions = Enum.GetValues<CompetitionNutritionFocus>().Select(value => new EnumOption<CompetitionNutritionFocus>(value, value.ToDisplay())).ToList();
-
-        SelectedLanguageOption = LanguageOptions.First(option => option.CultureName.Equals(localizationService.CurrentCulture.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
-        SelectedActivityTypeOption = FindOption(ActivityTypeOptions, selectedActivityType);
-        SelectedTemperatureRangeOption = FindOption(TemperatureRangeOptions, selectedTemperatureRange);
-        SelectedWaterAvailabilityOption = FindOption(WaterAvailabilityOptions, selectedWaterAvailability);
-        SelectedAltitudeRangeOption = FindOption(AltitudeRangeOptions, selectedAltitudeRange);
-        SelectedHumidityLevelOption = FindOption(HumidityLevelOptions, selectedHumidityLevel);
-        SelectedWeightImportanceOption = FindOption(WeightImportanceOptions, selectedWeightImportance);
-        SelectedCookingPossibilityOption = FindOption(CookingPossibilityOptions, selectedCookingPossibility);
-        SelectedResupplyFrequencyOption = FindOption(ResupplyFrequencyOptions, selectedResupplyFrequency);
-        SelectedCompetitionNutritionFocusOption = selectedCompetitionFocus is null ? null : FindOption(CompetitionNutritionFocusOptions, selectedCompetitionFocus.Value);
-        isRefreshingLocalizationState = false;
-
-        RaiseLocalizedPropertiesChanged();
-        RebuildProjectList();
-        RenderStatusMessage();
-        OnPropertyChanged(nameof(IsCompetitionSelected));
-    }
-
-    private void OnCultureChanged(object? sender, EventArgs e) => RefreshLocalizedState();
 
     private async void OnProductsChanged(object? sender, EventArgs e)
     {
         await dishes.ReloadReferenceDataAsync();
         await participants.ReloadReferenceDataAsync();
-    }
-
-    private async void OnParticipantsChanged(object? sender, EventArgs e)
-    {
-        if (SelectedRationProject is not null)
+        if (rationDetails.HasRation)
         {
-            await OpenRationDetailsAsync(SelectedRationProject.Id);
+            await rationDetails.LoadAsync(rationDetails.RationId);
         }
     }
 
-    private void SetStatus(string key, params object[] args)
-    {
-        statusMessageKey = key;
-        statusMessageArgs = args;
-        RenderStatusMessage();
-    }
-
-    private void RenderStatusMessage()
-    {
-        StatusMessage = statusMessageArgs.Length == 0 ? localizationService.Get(statusMessageKey) : localizationService.Format(statusMessageKey, statusMessageArgs);
-    }
-
-    private void RaiseLocalizedPropertiesChanged()
+    private void OnCultureChanged(object? sender, EventArgs e)
     {
         OnPropertyChanged(nameof(WindowTitle));
-        OnPropertyChanged(nameof(LanguageLabel));
-        OnPropertyChanged(nameof(NewProjectTitle));
-        OnPropertyChanged(nameof(NewProjectSubtitle));
-        OnPropertyChanged(nameof(NameLabel));
-        OnPropertyChanged(nameof(NameWatermark));
-        OnPropertyChanged(nameof(StartDateLabel));
-        OnPropertyChanged(nameof(DurationDaysLabel));
-        OnPropertyChanged(nameof(ParticipantsLabel));
-        OnPropertyChanged(nameof(ActivityTypeLabel));
-        OnPropertyChanged(nameof(EnvironmentSectionTitle));
-        OnPropertyChanged(nameof(TemperatureLabel));
-        OnPropertyChanged(nameof(WaterAvailabilityLabel));
-        OnPropertyChanged(nameof(AltitudeLabel));
-        OnPropertyChanged(nameof(HumidityLabel));
-        OnPropertyChanged(nameof(LogisticsSectionTitle));
-        OnPropertyChanged(nameof(WeightImportanceLabel));
-        OnPropertyChanged(nameof(CookingPossibilityLabel));
-        OnPropertyChanged(nameof(ResupplyFrequencyLabel));
-        OnPropertyChanged(nameof(CompetitionNutritionFocusTitle));
-        OnPropertyChanged(nameof(CreateButtonText));
-        OnPropertyChanged(nameof(SavedProjectsTitle));
-        OnPropertyChanged(nameof(SavedProjectsSubtitle));
+        CurrentScreenTitle = GetTitleFor(CurrentScreen);
     }
 
-    private static EnumOption<T>? FindOption<T>(IEnumerable<EnumOption<T>> options, T value) where T : struct, Enum
+    private string GetTitleFor(ViewModelBase screen)
     {
-        return options.FirstOrDefault(option => EqualityComparer<T>.Default.Equals(option.Value, value));
+        return screen switch
+        {
+            RationListViewModel => localizationService.Get("Navigation_Rations"),
+            RationDetailsViewModel => localizationService.Get("Navigation_RationDetails"),
+            ProductCatalogViewModel => localizationService.Get("Navigation_Products"),
+            DishCatalogViewModel => localizationService.Get("Navigation_Dishes"),
+            ParticipantsCatalogViewModel => localizationService.Get("Navigation_Preferences"),
+            DayTemplatesViewModel => localizationService.Get("Navigation_DayTemplates"),
+            SettingsViewModel => localizationService.Get("Navigation_Settings"),
+            _ => localizationService.Get("Window_Title")
+        };
     }
 }

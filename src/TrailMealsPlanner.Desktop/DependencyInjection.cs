@@ -14,16 +14,22 @@ public static class DependencyInjection
         services.AddSingleton(LocalizationService.Instance);
         services.AddApplication();
         services.AddInfrastructure();
+        services.AddSingleton<DayTemplatesViewModel>();
         services.AddSingleton<DishCatalogViewModel>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<ParticipantsCatalogViewModel>();
         services.AddSingleton<ProductCatalogViewModel>();
+        services.AddSingleton<RationListViewModel>();
         services.AddSingleton<RationDetailsViewModel>();
+        services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<DayTemplatesView>();
         services.AddSingleton<DishCatalogView>();
         services.AddSingleton<MainWindow>();
         services.AddSingleton<ParticipantsCatalogView>();
         services.AddSingleton<ProductCatalogView>();
+        services.AddSingleton<RationListView>();
         services.AddSingleton<RationDetailsView>();
+        services.AddSingleton<SettingsView>();
 
         return services;
     }
