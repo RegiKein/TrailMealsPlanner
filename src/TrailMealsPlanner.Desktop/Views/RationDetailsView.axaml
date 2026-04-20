@@ -137,6 +137,32 @@
                                                                    Text="{Binding Nutrition.DensityDisplay}" />
                                                     </StackPanel>
 
+                                                    <Border Background="{DynamicResource CardBackgroundBrush}"
+                                                            CornerRadius="10"
+                                                            Padding="10">
+                                                        <StackPanel Spacing="8">
+                                                            <TextBlock FontWeight="SemiBold" Text="Копировать в..." />
+                                                            <Grid ColumnDefinitions="*,Auto">
+                                                                <ComboBox ItemsSource="{Binding AvailableCopyTargets}"
+                                                                          SelectedItem="{Binding SelectedCopyTarget}">
+                                                                    <ComboBox.ItemTemplate>
+                                                                        <DataTemplate x:DataType="vm:MealCopyTargetViewModel">
+                                                                            <TextBlock Text="{Binding Display}" />
+                                                                        </DataTemplate>
+                                                                    </ComboBox.ItemTemplate>
+                                                                </ComboBox>
+
+                                                                <Button Grid.Column="1"
+                                                                        Margin="12,0,0,0"
+                                                                        Command="{Binding CopyMealCommand}"
+                                                                        Content="Копировать" />
+                                                            </Grid>
+                                                            <TextBlock Foreground="{DynamicResource StatusBrush}"
+                                                                       Text="{Binding CopyStatusMessage}"
+                                                                       TextWrapping="Wrap" />
+                                                        </StackPanel>
+                                                    </Border>
+
                                                     <ItemsControl ItemsSource="{Binding Items}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate x:DataType="vm:MealItemViewModel">

@@ -73,4 +73,28 @@ public sealed class Meal
 
         return clonedMeal;
     }
+
+    internal Meal CloneWithType(Guid targetRationDayId, MealType targetType)
+    {
+        var clonedMeal = new Meal(targetType, targetRationDayId);
+
+        foreach (var item in items)
+        {
+            clonedMeal.items.Add(item.Clone());
+        }
+
+        return clonedMeal;
+    }
+
+    internal void ReplaceContentFrom(Meal sourceMeal)
+    {
+        ArgumentNullException.ThrowIfNull(sourceMeal);
+
+        items.Clear();
+
+        foreach (var item in sourceMeal.items)
+        {
+            items.Add(item.Clone());
+        }
+    }
 }

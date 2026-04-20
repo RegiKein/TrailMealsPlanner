@@ -97,6 +97,42 @@ public sealed class RationProject
         days[targetIndex] = sourceDay.CloneTo(targetDay.Date, targetDay.DayNumber);
     }
 
+    public void ReplaceMealContent(Guid sourceMealId, Guid targetMealId)
+    {
+        if (sourceMealId == Guid.Empty)
+        {
+            throw new ArgumentException("Source meal id is required.", nameof(sourceMealId));
+        }
+
+        if (targetMealId == Guid.Empty)
+        {
+            throw new ArgumentException("Target meal id is required.", nameof(targetMealId));
+        }
+
+        if (sourceMealId == targetMealId)
+        {
+            throw new InvalidOperationException("Source and target meal must be different.");
+        }
+
+        var sourceMeal = days
+            .SelectMany(day => day.Meals)
+            .FirstOrDefault(meal => meal.Id == sourceMealId);
+        if (sourceMeal is null)
+        {
+            throw new InvalidOperationException($"Source meal '{sourceMealId}' was not found in ration project '{Id}'.");
+        }
+
+        var targetMeal = days
+            .SelectMany(day => day.Meals)
+            .FirstOrDefault(meal => meal.Id == targetMealId);
+        if (targetMeal is null)
+        {
+            throw new InvalidOperationException($"Target meal '{targetMealId}' was not found in ration project '{Id}'.");
+        }
+
+        targetMeal.ReplaceContentFrom(sourceMeal);
+    }
+
     public void GenerateDays()
     {
         days.Clear();

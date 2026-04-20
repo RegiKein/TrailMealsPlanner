@@ -13,6 +13,7 @@ public partial class RationDayViewModel : ViewModelBase
 {
     private readonly Func<Guid, Guid, decimal, Task> addDishToMeal;
     private readonly Func<Guid, Task> copyDay;
+    private readonly IReadOnlyList<MealCopyTargetViewModel> availableMealCopyTargets;
 
     [ObservableProperty]
     private IReadOnlyList<DayCopyTargetViewModel> availableCopyTargets = [];
@@ -27,8 +28,10 @@ public partial class RationDayViewModel : ViewModelBase
         RationDayDto day,
         RationDayAnalyticsDto? analytics,
         IReadOnlyList<DishOptionViewModel> availableDishes,
+        IReadOnlyList<MealCopyTargetViewModel> availableMealCopyTargets,
         Func<Guid, Guid, decimal, Task> addDishToMeal,
-        Func<Guid, Task> copyDay)
+        Func<Guid, Task> copyDay,
+        Func<Guid, Guid, Task> copyMeal)
     {
         Id = day.Id;
         DayNumber = day.DayNumber;
@@ -36,17 +39,21 @@ public partial class RationDayViewModel : ViewModelBase
         Nutrition = analytics is null
             ? new NutritionSummaryViewModel(new NutritionInfoDto())
             : new NutritionSummaryViewModel(analytics.Nutrition);
+        this.availableMealCopyTargets = availableMealCopyTargets;
         this.addDishToMeal = addDishToMeal;
         this.copyDay = copyDay;
 
         foreach (var meal in day.Meals)
         {
             var mealAnalytics = analytics?.Meals.FirstOrDefault(item => item.MealId == meal.Id);
-            Meals.Add(new MealViewModel(
+            var mealViewModel = new MealViewModel(
                 meal,
                 mealAnalytics,
                 availableDishes,
-                (dishId, quantity) => this.addDishToMeal(meal.Id, dishId, quantity)));
+                (dishId, quantity) => this.addDishToMeal(meal.Id, dishId, quantity),
+                targetMealId => copyMeal(meal.Id, targetMealId));
+            mealViewModel.UpdateCopyTargets(availableMealCopyTargets);
+            Meals.Add(mealViewModel);
         }
     }
 
@@ -79,6 +86,14 @@ public partial class RationDayViewModel : ViewModelBase
         SelectedCopyTarget = SelectedCopyTarget is not null
             ? AvailableCopyTargets.FirstOrDefault(target => target.Id == SelectedCopyTarget.Id) ?? AvailableCopyTargets.FirstOrDefault()
             : AvailableCopyTargets.FirstOrDefault();
+    }
+
+    public void UpdateMealCopyTargets()
+    {
+        foreach (var meal in Meals)
+        {
+            meal.UpdateCopyTargets(availableMealCopyTargets);
+        }
     }
 
     [RelayCommand]

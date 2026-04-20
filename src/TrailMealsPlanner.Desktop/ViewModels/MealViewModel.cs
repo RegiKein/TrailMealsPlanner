@@ -13,6 +13,7 @@ namespace TrailMealsPlanner.Desktop.ViewModels;
 public partial class MealViewModel : ViewModelBase
 {
     private readonly Func<Guid, decimal, Task> addDishToMeal;
+    private readonly Func<Guid, Task> copyMeal;
 
     [ObservableProperty]
     private IReadOnlyList<DishOptionViewModel> availableDishes = [];
@@ -29,15 +30,26 @@ public partial class MealViewModel : ViewModelBase
     [ObservableProperty]
     private NutritionSummaryViewModel nutrition = new(new NutritionInfoDto());
 
+    [ObservableProperty]
+    private IReadOnlyList<MealCopyTargetViewModel> availableCopyTargets = [];
+
+    [ObservableProperty]
+    private MealCopyTargetViewModel? selectedCopyTarget;
+
+    [ObservableProperty]
+    private string copyStatusMessage = string.Empty;
+
     public MealViewModel(
         MealDto meal,
         MealAnalyticsDto? analytics,
         IReadOnlyList<DishOptionViewModel> availableDishes,
-        Func<Guid, decimal, Task> addDishToMeal)
+        Func<Guid, decimal, Task> addDishToMeal,
+        Func<Guid, Task> copyMeal)
     {
         Id = meal.Id;
         Type = meal.Type;
         this.addDishToMeal = addDishToMeal;
+        this.copyMeal = copyMeal;
         Nutrition = analytics is null
             ? new NutritionSummaryViewModel(new NutritionInfoDto())
             : new NutritionSummaryViewModel(analytics.Nutrition);
@@ -74,6 +86,17 @@ public partial class MealViewModel : ViewModelBase
             : dishes.FirstOrDefault();
     }
 
+    public void UpdateCopyTargets(IReadOnlyList<MealCopyTargetViewModel> copyTargets)
+    {
+        AvailableCopyTargets = copyTargets
+            .Where(target => target.Id != Id)
+            .ToList();
+
+        SelectedCopyTarget = SelectedCopyTarget is not null
+            ? AvailableCopyTargets.FirstOrDefault(target => target.Id == SelectedCopyTarget.Id) ?? AvailableCopyTargets.FirstOrDefault()
+            : AvailableCopyTargets.FirstOrDefault();
+    }
+
     [RelayCommand]
     private async Task AddDish()
     {
@@ -92,5 +115,18 @@ public partial class MealViewModel : ViewModelBase
         await addDishToMeal(SelectedDish.Id, Quantity);
         StatusMessage = $"Блюдо \"{SelectedDish.Name}\" добавлено.";
         Quantity = 1;
+    }
+
+    [RelayCommand]
+    private async Task CopyMeal()
+    {
+        if (SelectedCopyTarget is null)
+        {
+            CopyStatusMessage = "Выберите целевой приём пищи.";
+            return;
+        }
+
+        await copyMeal(SelectedCopyTarget.Id);
+        CopyStatusMessage = $"Приём пищи скопирован в {SelectedCopyTarget.Display}.";
     }
 }
