@@ -8,11 +8,18 @@ public sealed class MealItemViewModel
     {
         Name = item.Name;
         Quantity = item.Quantity;
+        FoodIssueSummary = item.FoodIssue?.Summary;
     }
 
     public string Name { get; }
 
     public decimal Quantity { get; }
 
-    public string Display => $"{Name} x {Quantity:0.##}";
+    public string? FoodIssueSummary { get; }
+
+    public bool HasFoodIssue => !string.IsNullOrWhiteSpace(FoodIssueSummary);
+
+    public string Display => HasFoodIssue
+        ? $"{Name} x {Quantity:0.##} [{FoodIssueSummary}]"
+        : $"{Name} x {Quantity:0.##}";
 }

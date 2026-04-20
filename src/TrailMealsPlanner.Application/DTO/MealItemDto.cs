@@ -9,4 +9,6 @@ public sealed class MealItemDto
     public string Name { get; init; } = string.Empty;
 
     public decimal Quantity { get; init; }
+
+    public FoodIssueDto? FoodIssue { get; init; }
 }

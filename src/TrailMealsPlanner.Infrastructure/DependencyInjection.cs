@@ -12,7 +12,9 @@ public static class DependencyInjection
         services.AddSingleton<IRationExportService, RationExportService>();
         services.AddSingleton<IDayTemplateRepository, InMemoryDayTemplateRepository>();
         services.AddSingleton<IDishRepository, InMemoryDishRepository>();
+        services.AddSingleton<IParticipantRepository, InMemoryParticipantRepository>();
         services.AddSingleton<IProductRepository, InMemoryProductRepository>();
+        services.AddSingleton<IProductPreferenceRepository, InMemoryProductPreferenceRepository>();
         services.AddSingleton<IRationProjectRepository, InMemoryRationProjectRepository>();
 
         return services;

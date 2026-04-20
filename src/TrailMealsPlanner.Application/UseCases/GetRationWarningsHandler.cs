@@ -8,18 +8,27 @@ namespace TrailMealsPlanner.Application.UseCases;
 
 public sealed class GetRationWarningsHandler
 {
-    private readonly IRationProjectRepository rationRepository;
     private readonly IDishRepository dishRepository;
+    private readonly IGroupPreferenceAnalysisService groupPreferenceAnalysisService;
+    private readonly IParticipantRepository participantRepository;
+    private readonly IProductPreferenceRepository preferenceRepository;
     private readonly IProductRepository productRepository;
+    private readonly IRationProjectRepository rationRepository;
 
     public GetRationWarningsHandler(
         IRationProjectRepository rationRepository,
         IDishRepository dishRepository,
-        IProductRepository productRepository)
+        IProductRepository productRepository,
+        IParticipantRepository participantRepository,
+        IProductPreferenceRepository preferenceRepository,
+        IGroupPreferenceAnalysisService groupPreferenceAnalysisService)
     {
         this.rationRepository = rationRepository;
         this.dishRepository = dishRepository;
         this.productRepository = productRepository;
+        this.participantRepository = participantRepository;
+        this.preferenceRepository = preferenceRepository;
+        this.groupPreferenceAnalysisService = groupPreferenceAnalysisService;
     }
 
     public async Task<RationWarningsDto?> Handle(
@@ -34,11 +43,16 @@ public sealed class GetRationWarningsHandler
 
         var dishes = await dishRepository.GetAllAsync(cancellationToken);
         var products = await productRepository.GetAllAsync(cancellationToken);
+        var participants = await participantRepository.GetAllAsync(cancellationToken);
+        var preferences = await preferenceRepository.GetAllAsync(cancellationToken);
 
         return RationWarningsEvaluator.Evaluate(
             ration,
             dishes.ToDictionary(dish => dish.Id),
-            products.ToDictionary(product => product.Id));
+            products.ToDictionary(product => product.Id),
+            participants,
+            preferences,
+            groupPreferenceAnalysisService);
     }
 
     private static class RationWarningsEvaluator
@@ -46,14 +60,17 @@ public sealed class GetRationWarningsHandler
         public static RationWarningsDto Evaluate(
             RationProject ration,
             IReadOnlyDictionary<Guid, Dish> dishesById,
-            IReadOnlyDictionary<Guid, Product> productsById)
+            IReadOnlyDictionary<Guid, Product> productsById,
+            IReadOnlyList<Participant> participants,
+            IReadOnlyList<ProductPreference> preferences,
+            IGroupPreferenceAnalysisService groupPreferenceAnalysisService)
         {
             var thresholds = WarningThresholds.ForProfile(ration.Profile);
             var rationNutrition = ration.CalculateNutrition(dishesById, productsById);
             var rationWarnings = BuildRationWarnings(ration, rationNutrition, thresholds);
             var dayWarnings = ration.Days
                 .OrderBy(day => day.DayNumber)
-                .Select(day => BuildDayWarnings(day, dishesById, productsById, thresholds))
+                .Select(day => BuildDayWarnings(day, dishesById, productsById, thresholds, participants, preferences, groupPreferenceAnalysisService))
                 .ToList();
 
             return new RationWarningsDto
@@ -121,7 +138,10 @@ public sealed class GetRationWarningsHandler
             RationDay day,
             IReadOnlyDictionary<Guid, Dish> dishesById,
             IReadOnlyDictionary<Guid, Product> productsById,
-            WarningThresholds thresholds)
+            WarningThresholds thresholds,
+            IReadOnlyList<Participant> participants,
+            IReadOnlyList<ProductPreference> preferences,
+            IGroupPreferenceAnalysisService groupPreferenceAnalysisService)
         {
             var warnings = new List<WarningDto>();
             var nutrition = day.CalculateNutrition(dishesById, productsById);
@@ -150,6 +170,32 @@ public sealed class GetRationWarningsHandler
                         Message = $"День {day.DayNumber}, {GetMealDisplayName(meal.Type)}: приём пищи пока не заполнен.",
                         RelatedEntityId = meal.Id
                     });
+                }
+
+                foreach (var meal in day.Meals.Where(meal => meal.Items.Count > 0))
+                {
+                    foreach (var item in meal.Items)
+                    {
+                        var issue = groupPreferenceAnalysisService.AnalyzeMealItem(
+                            item,
+                            dishesById,
+                            productsById,
+                            participants,
+                            preferences);
+                        if (issue is null)
+                        {
+                            continue;
+                        }
+
+                        warnings.Add(new WarningDto
+                        {
+                            Code = issue.Severity == PreferenceLevel.Allergy ? "meal.allergy" : "meal.dislike",
+                            Severity = issue.Severity == PreferenceLevel.Allergy ? WarningSeverity.Critical : WarningSeverity.Warning,
+                            Scope = WarningScope.Meal,
+                            Message = $"День {day.DayNumber}, {GetMealDisplayName(meal.Type)}: {issue.Summary}.",
+                            RelatedEntityId = meal.Id
+                        });
+                    }
                 }
             }
 
@@ -198,6 +244,7 @@ public sealed class GetRationWarningsHandler
                 DayId = day.Id,
                 DayNumber = day.DayNumber,
                 Warnings = warnings
+                    .DistinctBy(warning => $"{warning.Code}:{warning.Message}:{warning.RelatedEntityId}")
                     .OrderByDescending(warning => warning.Severity)
                     .ThenBy(warning => warning.Scope)
                     .ToList()
@@ -310,42 +357,15 @@ public sealed class GetRationWarningsHandler
 
             if (profile.ActivityType == ActivityType.Competition)
             {
-                return new WarningThresholds(
-                    targetDayCalories,
-                    maxDayWeight,
-                    minCaloriesPerGram,
-                    0.10m,
-                    0.20m,
-                    0.18m,
-                    0.30m,
-                    0.55m,
-                    0.72m);
+                return new WarningThresholds(targetDayCalories, maxDayWeight, minCaloriesPerGram, 0.10m, 0.20m, 0.18m, 0.30m, 0.55m, 0.72m);
             }
 
             if (profile.ActivityType == ActivityType.Alpine)
             {
-                return new WarningThresholds(
-                    targetDayCalories,
-                    maxDayWeight,
-                    minCaloriesPerGram,
-                    0.10m,
-                    0.20m,
-                    0.25m,
-                    0.42m,
-                    0.38m,
-                    0.58m);
+                return new WarningThresholds(targetDayCalories, maxDayWeight, minCaloriesPerGram, 0.10m, 0.20m, 0.25m, 0.42m, 0.38m, 0.58m);
             }
 
-            return new WarningThresholds(
-                targetDayCalories,
-                maxDayWeight,
-                minCaloriesPerGram,
-                0.10m,
-                0.22m,
-                0.20m,
-                0.38m,
-                0.40m,
-                0.65m);
+            return new WarningThresholds(targetDayCalories, maxDayWeight, minCaloriesPerGram, 0.10m, 0.22m, 0.20m, 0.38m, 0.40m, 0.65m);
         }
     }
 }

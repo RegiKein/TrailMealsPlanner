@@ -20,98 +20,49 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly CreateRationHandler createRationHandler;
     private readonly DishCatalogViewModel dishes;
-    private readonly ProductCatalogViewModel products;
-    private readonly RationDetailsViewModel rationDetails;
     private readonly GetRationsHandler getRationsHandler;
     private readonly LocalizationService localizationService;
+    private readonly ParticipantsCatalogViewModel participants;
+    private readonly ProductCatalogViewModel products;
+    private readonly RationDetailsViewModel rationDetails;
     private IReadOnlyList<RationProjectListItemDto> loadedProjects = [];
-    private string statusMessageKey = "Status_EnterParameters";
-    private object[] statusMessageArgs = [];
     private bool isRefreshingLocalizationState;
+    private object[] statusMessageArgs = [];
+    private string statusMessageKey = "Status_EnterParameters";
 
-    [ObservableProperty]
-    private string name = string.Empty;
-
-    [ObservableProperty]
-    private DateTimeOffset? startDate = DateTimeOffset.Now;
-
-    [ObservableProperty]
-    private int durationDays = 3;
-
-    [ObservableProperty]
-    private int participantCount = 2;
-
-    [ObservableProperty]
-    private IReadOnlyList<LanguageOption> languageOptions = [];
-
-    [ObservableProperty]
-    private LanguageOption? selectedLanguageOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<ActivityType>> activityTypeOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<ActivityType>? selectedActivityTypeOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<TemperatureRange>> temperatureRangeOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<TemperatureRange>? selectedTemperatureRangeOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<WaterAvailability>> waterAvailabilityOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<WaterAvailability>? selectedWaterAvailabilityOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<AltitudeRange>> altitudeRangeOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<AltitudeRange>? selectedAltitudeRangeOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<HumidityLevel>> humidityLevelOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<HumidityLevel>? selectedHumidityLevelOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<WeightImportance>> weightImportanceOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<WeightImportance>? selectedWeightImportanceOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<CookingPossibility>> cookingPossibilityOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<CookingPossibility>? selectedCookingPossibilityOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<ResupplyFrequency>> resupplyFrequencyOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<ResupplyFrequency>? selectedResupplyFrequencyOption;
-
-    [ObservableProperty]
-    private IReadOnlyList<EnumOption<CompetitionNutritionFocus>> competitionNutritionFocusOptions = [];
-
-    [ObservableProperty]
-    private EnumOption<CompetitionNutritionFocus>? selectedCompetitionNutritionFocusOption;
-
-    [ObservableProperty]
-    private string statusMessage = string.Empty;
-
-    [ObservableProperty]
-    private RationProjectListItemViewModel? selectedRationProject;
+    [ObservableProperty] private string name = string.Empty;
+    [ObservableProperty] private DateTimeOffset? startDate = DateTimeOffset.Now;
+    [ObservableProperty] private int durationDays = 3;
+    [ObservableProperty] private int participantCount = 2;
+    [ObservableProperty] private IReadOnlyList<LanguageOption> languageOptions = [];
+    [ObservableProperty] private LanguageOption? selectedLanguageOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<ActivityType>> activityTypeOptions = [];
+    [ObservableProperty] private EnumOption<ActivityType>? selectedActivityTypeOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<TemperatureRange>> temperatureRangeOptions = [];
+    [ObservableProperty] private EnumOption<TemperatureRange>? selectedTemperatureRangeOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<WaterAvailability>> waterAvailabilityOptions = [];
+    [ObservableProperty] private EnumOption<WaterAvailability>? selectedWaterAvailabilityOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<AltitudeRange>> altitudeRangeOptions = [];
+    [ObservableProperty] private EnumOption<AltitudeRange>? selectedAltitudeRangeOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<HumidityLevel>> humidityLevelOptions = [];
+    [ObservableProperty] private EnumOption<HumidityLevel>? selectedHumidityLevelOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<WeightImportance>> weightImportanceOptions = [];
+    [ObservableProperty] private EnumOption<WeightImportance>? selectedWeightImportanceOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<CookingPossibility>> cookingPossibilityOptions = [];
+    [ObservableProperty] private EnumOption<CookingPossibility>? selectedCookingPossibilityOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<ResupplyFrequency>> resupplyFrequencyOptions = [];
+    [ObservableProperty] private EnumOption<ResupplyFrequency>? selectedResupplyFrequencyOption;
+    [ObservableProperty] private IReadOnlyList<EnumOption<CompetitionNutritionFocus>> competitionNutritionFocusOptions = [];
+    [ObservableProperty] private EnumOption<CompetitionNutritionFocus>? selectedCompetitionNutritionFocusOption;
+    [ObservableProperty] private string statusMessage = string.Empty;
+    [ObservableProperty] private RationProjectListItemViewModel? selectedRationProject;
 
     public MainWindowViewModel(
         CreateRationHandler createRationHandler,
         GetRationsHandler getRationsHandler,
         DishCatalogViewModel dishes,
         ProductCatalogViewModel products,
+        ParticipantsCatalogViewModel participants,
         RationDetailsViewModel rationDetails,
         LocalizationService localizationService)
     {
@@ -119,21 +70,21 @@ public partial class MainWindowViewModel : ViewModelBase
         this.getRationsHandler = getRationsHandler;
         this.dishes = dishes;
         this.products = products;
+        this.participants = participants;
         this.rationDetails = rationDetails;
         this.localizationService = localizationService;
 
         localizationService.CultureChanged += OnCultureChanged;
         products.ProductsChanged += OnProductsChanged;
+        participants.PreferencesChanged += OnParticipantsChanged;
         RefreshLocalizedState();
         SetStatus("Status_EnterParameters");
     }
 
     public ObservableCollection<RationProjectListItemViewModel> RationProjects { get; } = [];
-
     public DishCatalogViewModel Dishes => dishes;
-
     public ProductCatalogViewModel Products => products;
-
+    public ParticipantsCatalogViewModel Participants => participants;
     public RationDetailsViewModel RationDetails => rationDetails;
 
     public string WindowTitle => localizationService.Get("Window_Title");
@@ -159,38 +110,31 @@ public partial class MainWindowViewModel : ViewModelBase
     public string CreateButtonText => localizationService.Get("Button_Create");
     public string SavedProjectsTitle => localizationService.Get("SavedProjects_Title");
     public string SavedProjectsSubtitle => localizationService.Get("SavedProjects_Subtitle");
-
     public bool IsCompetitionSelected => SelectedActivityTypeOption?.Value == ActivityType.Competition;
 
     partial void OnSelectedRationProjectChanged(RationProjectListItemViewModel? value)
     {
-        if (value is null)
+        if (value is not null)
         {
-            return;
+            _ = OpenRationDetailsAsync(value.Id);
         }
-
-        _ = OpenRationDetailsAsync(value.Id);
     }
 
     partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
     {
-        if (isRefreshingLocalizationState || value is null)
+        if (!isRefreshingLocalizationState && value is not null)
         {
-            return;
+            localizationService.SetCulture(value.CultureName);
         }
-
-        localizationService.SetCulture(value.CultureName);
     }
 
     partial void OnSelectedActivityTypeOptionChanged(EnumOption<ActivityType>? value)
     {
-        if (isRefreshingLocalizationState || value is null)
+        if (!isRefreshingLocalizationState && value is not null)
         {
-            return;
+            ApplyProfile(RationProfileFactory.CreateDefault(value.Value));
+            OnPropertyChanged(nameof(IsCompetitionSelected));
         }
-
-        ApplyProfile(RationProfileFactory.CreateDefault(value.Value));
-        OnPropertyChanged(nameof(IsCompetitionSelected));
     }
 
     [RelayCommand]
@@ -215,7 +159,6 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         var rationName = Name.Trim();
-
         var createdId = await createRationHandler.Handle(new CreateRationCommand
         {
             Name = rationName,
@@ -234,7 +177,6 @@ public partial class MainWindowViewModel : ViewModelBase
         });
 
         await ReloadProjects();
-
         SelectedRationProject = RationProjects.FirstOrDefault(project => project.Id == createdId);
         await OpenRationDetailsAsync(createdId);
         SetStatus("Status_RationSaved", rationName);
@@ -251,6 +193,7 @@ public partial class MainWindowViewModel : ViewModelBase
         await ReloadProjects();
         await products.InitializeAsync();
         await dishes.InitializeAsync();
+        await participants.InitializeAsync();
     }
 
     [RelayCommand]
@@ -266,15 +209,11 @@ public partial class MainWindowViewModel : ViewModelBase
         RebuildProjectList();
     }
 
-    private async Task OpenRationDetailsAsync(Guid rationId)
-    {
-        await rationDetails.LoadAsync(rationId);
-    }
+    private Task OpenRationDetailsAsync(Guid rationId) => rationDetails.LoadAsync(rationId);
 
     private void RebuildProjectList()
     {
         RationProjects.Clear();
-
         foreach (var project in loadedProjects)
         {
             RationProjects.Add(new RationProjectListItemViewModel(project, localizationService));
@@ -286,7 +225,6 @@ public partial class MainWindowViewModel : ViewModelBase
         isRefreshingLocalizationState = true;
         SelectedActivityTypeOption = FindOption(ActivityTypeOptions, activityType);
         isRefreshingLocalizationState = false;
-
         ApplyProfile(RationProfileFactory.CreateDefault(activityType));
         OnPropertyChanged(nameof(IsCompetitionSelected));
     }
@@ -294,7 +232,6 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ApplyProfile(RationProfile profile)
     {
         isRefreshingLocalizationState = true;
-
         SelectedTemperatureRangeOption = FindOption(TemperatureRangeOptions, profile.Environment.TemperatureRange);
         SelectedWaterAvailabilityOption = FindOption(WaterAvailabilityOptions, profile.Environment.WaterAvailability);
         SelectedAltitudeRangeOption = FindOption(AltitudeRangeOptions, profile.Environment.AltitudeRange);
@@ -302,10 +239,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedWeightImportanceOption = FindOption(WeightImportanceOptions, profile.Logistics.WeightImportance);
         SelectedCookingPossibilityOption = FindOption(CookingPossibilityOptions, profile.Logistics.CookingPossibility);
         SelectedResupplyFrequencyOption = FindOption(ResupplyFrequencyOptions, profile.Logistics.ResupplyFrequency);
-        SelectedCompetitionNutritionFocusOption = profile.CompetitionFocus is null
-            ? null
-            : FindOption(CompetitionNutritionFocusOptions, profile.CompetitionFocus.Value);
-
+        SelectedCompetitionNutritionFocusOption = profile.CompetitionFocus is null ? null : FindOption(CompetitionNutritionFocusOptions, profile.CompetitionFocus.Value);
         isRefreshingLocalizationState = false;
         OnPropertyChanged(nameof(IsCompetitionSelected));
     }
@@ -323,13 +257,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var selectedCompetitionFocus = SelectedCompetitionNutritionFocusOption?.Value;
 
         isRefreshingLocalizationState = true;
-
-        LanguageOptions =
-        [
-            new LanguageOption("en", localizationService.Get("Language_English")),
-            new LanguageOption("ru", localizationService.Get("Language_Russian"))
-        ];
-
+        LanguageOptions = [new LanguageOption("en", localizationService.Get("Language_English")), new LanguageOption("ru", localizationService.Get("Language_Russian"))];
         ActivityTypeOptions = Enum.GetValues<ActivityType>().Select(value => new EnumOption<ActivityType>(value, value.ToDisplay())).ToList();
         TemperatureRangeOptions = Enum.GetValues<TemperatureRange>().Select(value => new EnumOption<TemperatureRange>(value, value.ToDisplay())).ToList();
         WaterAvailabilityOptions = Enum.GetValues<WaterAvailability>().Select(value => new EnumOption<WaterAvailability>(value, value.ToDisplay())).ToList();
@@ -340,9 +268,7 @@ public partial class MainWindowViewModel : ViewModelBase
         ResupplyFrequencyOptions = Enum.GetValues<ResupplyFrequency>().Select(value => new EnumOption<ResupplyFrequency>(value, value.ToDisplay())).ToList();
         CompetitionNutritionFocusOptions = Enum.GetValues<CompetitionNutritionFocus>().Select(value => new EnumOption<CompetitionNutritionFocus>(value, value.ToDisplay())).ToList();
 
-        SelectedLanguageOption = LanguageOptions.First(option =>
-            option.CultureName.Equals(localizationService.CurrentCulture.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
-
+        SelectedLanguageOption = LanguageOptions.First(option => option.CultureName.Equals(localizationService.CurrentCulture.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
         SelectedActivityTypeOption = FindOption(ActivityTypeOptions, selectedActivityType);
         SelectedTemperatureRangeOption = FindOption(TemperatureRangeOptions, selectedTemperatureRange);
         SelectedWaterAvailabilityOption = FindOption(WaterAvailabilityOptions, selectedWaterAvailability);
@@ -351,10 +277,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedWeightImportanceOption = FindOption(WeightImportanceOptions, selectedWeightImportance);
         SelectedCookingPossibilityOption = FindOption(CookingPossibilityOptions, selectedCookingPossibility);
         SelectedResupplyFrequencyOption = FindOption(ResupplyFrequencyOptions, selectedResupplyFrequency);
-        SelectedCompetitionNutritionFocusOption = selectedCompetitionFocus is null
-            ? null
-            : FindOption(CompetitionNutritionFocusOptions, selectedCompetitionFocus.Value);
-
+        SelectedCompetitionNutritionFocusOption = selectedCompetitionFocus is null ? null : FindOption(CompetitionNutritionFocusOptions, selectedCompetitionFocus.Value);
         isRefreshingLocalizationState = false;
 
         RaiseLocalizedPropertiesChanged();
@@ -363,14 +286,20 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsCompetitionSelected));
     }
 
-    private void OnCultureChanged(object? sender, EventArgs e)
-    {
-        RefreshLocalizedState();
-    }
+    private void OnCultureChanged(object? sender, EventArgs e) => RefreshLocalizedState();
 
     private async void OnProductsChanged(object? sender, EventArgs e)
     {
         await dishes.ReloadReferenceDataAsync();
+        await participants.ReloadReferenceDataAsync();
+    }
+
+    private async void OnParticipantsChanged(object? sender, EventArgs e)
+    {
+        if (SelectedRationProject is not null)
+        {
+            await OpenRationDetailsAsync(SelectedRationProject.Id);
+        }
     }
 
     private void SetStatus(string key, params object[] args)
@@ -382,9 +311,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void RenderStatusMessage()
     {
-        StatusMessage = statusMessageArgs.Length == 0
-            ? localizationService.Get(statusMessageKey)
-            : localizationService.Format(statusMessageKey, statusMessageArgs);
+        StatusMessage = statusMessageArgs.Length == 0 ? localizationService.Get(statusMessageKey) : localizationService.Format(statusMessageKey, statusMessageArgs);
     }
 
     private void RaiseLocalizedPropertiesChanged()
@@ -414,8 +341,7 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(SavedProjectsSubtitle));
     }
 
-    private static EnumOption<T>? FindOption<T>(IEnumerable<EnumOption<T>> options, T value)
-        where T : struct, Enum
+    private static EnumOption<T>? FindOption<T>(IEnumerable<EnumOption<T>> options, T value) where T : struct, Enum
     {
         return options.FirstOrDefault(option => EqualityComparer<T>.Default.Equals(option.Value, value));
     }

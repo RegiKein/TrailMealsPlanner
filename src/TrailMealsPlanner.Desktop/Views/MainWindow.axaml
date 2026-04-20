@@ -220,6 +220,10 @@
             </ScrollViewer>
         </TabItem>
 
+        <TabItem Header="Участники">
+            <views:ParticipantsCatalogView DataContext="{Binding Participants}" />
+        </TabItem>
+
         <TabItem Header="Продукты">
             <views:ProductCatalogView DataContext="{Binding Products}" />
         </TabItem>

@@ -1,0 +1,122 @@
+<UserControl
+    x:Class="TrailMealsPlanner.Desktop.Views.ParticipantsCatalogView"
+    x:DataType="vm:ParticipantsCatalogViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:TrailMealsPlanner.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    mc:Ignorable="d">
+
+    <Grid ColumnDefinitions="380,*">
+        <Border Grid.Column="0"
+                Background="{DynamicResource PanelBackgroundBrush}"
+                CornerRadius="18"
+                Padding="24">
+            <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
+                    <TextBlock FontSize="28" FontWeight="Bold" Text="Участники" />
+                    <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                               Opacity="0.95"
+                               Text="Добавьте людей в группу и отметьте продукты с аллергией или неприязнью."
+                               TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Имя участника" />
+                    <TextBox Text="{Binding ParticipantName}" Watermark="Например, Анна" />
+                </StackPanel>
+
+                <Button Command="{Binding AddParticipantCommand}"
+                        Content="Добавить участника"
+                        HorizontalAlignment="Stretch" />
+
+                <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                        CornerRadius="14"
+                        Padding="16">
+                    <StackPanel Spacing="10">
+                        <TextBlock FontSize="18" FontWeight="SemiBold" Text="Предпочтение по продукту" />
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Участник" />
+                            <ComboBox ItemsSource="{Binding Participants}"
+                                      SelectedItem="{Binding SelectedParticipant}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ParticipantListItemViewModel">
+                                        <TextBlock Text="{Binding Display}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Продукт" />
+                            <ComboBox ItemsSource="{Binding Products}"
+                                      SelectedItem="{Binding SelectedProduct}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ProductListItemViewModel">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Оценка" />
+                            <ComboBox ItemsSource="{Binding PreferenceLevels}"
+                                      SelectedItem="{Binding SelectedPreferenceLevel}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PreferenceLevelOptionViewModel">
+                                        <TextBlock Text="{Binding Display}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Комментарий" />
+                            <TextBox Text="{Binding Comment}" Watermark="Опционально" />
+                        </StackPanel>
+
+                        <Button Command="{Binding SavePreferenceCommand}"
+                                Content="Сохранить предпочтение"
+                                HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Foreground="{DynamicResource StatusBrush}"
+                           FontWeight="SemiBold"
+                           Text="{Binding StatusMessage}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Column="1" Margin="24,0,0,0" Spacing="16">
+            <StackPanel Spacing="4">
+                <TextBlock FontSize="28" FontWeight="Bold" Text="Ограничения группы" />
+                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                           Opacity="0.95"
+                           Text="MVP: пока учитываются только предпочтения по продуктам." />
+            </StackPanel>
+
+            <Border Background="{DynamicResource SurfaceBackgroundBrush}"
+                    CornerRadius="18"
+                    Padding="12">
+                <ListBox Background="Transparent"
+                         BorderThickness="0"
+                         ItemsSource="{Binding Preferences}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ProductPreferenceListItemViewModel">
+                            <Border Background="{DynamicResource CardBackgroundBrush}"
+                                    CornerRadius="14"
+                                    Margin="0,0,0,12"
+                                    Padding="16">
+                                <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" />
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

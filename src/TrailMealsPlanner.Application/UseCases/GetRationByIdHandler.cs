@@ -5,13 +5,27 @@ namespace TrailMealsPlanner.Application.UseCases;
 
 public sealed class GetRationByIdHandler
 {
-    private readonly IRationProjectRepository repository;
+    private readonly IGroupPreferenceAnalysisService groupPreferenceAnalysisService;
     private readonly IDishRepository dishRepository;
+    private readonly IParticipantRepository participantRepository;
+    private readonly IProductPreferenceRepository preferenceRepository;
+    private readonly IRationProjectRepository repository;
+    private readonly IProductRepository productRepository;
 
-    public GetRationByIdHandler(IRationProjectRepository repository, IDishRepository dishRepository)
+    public GetRationByIdHandler(
+        IRationProjectRepository repository,
+        IDishRepository dishRepository,
+        IProductRepository productRepository,
+        IParticipantRepository participantRepository,
+        IProductPreferenceRepository preferenceRepository,
+        IGroupPreferenceAnalysisService groupPreferenceAnalysisService)
     {
         this.repository = repository;
         this.dishRepository = dishRepository;
+        this.productRepository = productRepository;
+        this.participantRepository = participantRepository;
+        this.preferenceRepository = preferenceRepository;
+        this.groupPreferenceAnalysisService = groupPreferenceAnalysisService;
     }
 
     public async Task<RationDetailsDto?> Handle(
@@ -25,7 +39,13 @@ public sealed class GetRationByIdHandler
         }
 
         var dishes = await dishRepository.GetAllAsync(cancellationToken);
-        var dishesById = dishes.ToDictionary(dish => dish.Id, dish => dish.Name);
+        var products = await productRepository.GetAllAsync(cancellationToken);
+        var participants = await participantRepository.GetAllAsync(cancellationToken);
+        var preferences = await preferenceRepository.GetAllAsync(cancellationToken);
+        var dishesById = dishes.ToDictionary(dish => dish.Id);
+        var productsById = products.ToDictionary(product => product.Id);
+        var dishNamesById = dishes.ToDictionary(dish => dish.Id, dish => dish.Name);
+        var productNamesById = products.ToDictionary(product => product.Id, product => product.Name);
 
         return new RationDetailsDto
         {
@@ -66,10 +86,14 @@ public sealed class GetRationByIdHandler
                                 {
                                     DishId = item.DishId,
                                     ProductId = item.ProductId,
-                                    Name = item.DishId is Guid dishId && dishesById.TryGetValue(dishId, out var dishName)
-                                        ? dishName
-                                        : "Unknown item",
-                                    Quantity = item.Quantity
+                                    Name = ResolveItemName(item.DishId, item.ProductId, dishNamesById, productNamesById),
+                                    Quantity = item.Quantity,
+                                    FoodIssue = groupPreferenceAnalysisService.AnalyzeMealItem(
+                                        item,
+                                        dishesById,
+                                        productsById,
+                                        participants,
+                                        preferences)
                                 })
                                 .ToList()
                         })
@@ -77,5 +101,24 @@ public sealed class GetRationByIdHandler
                 })
                 .ToList()
         };
+    }
+
+    private static string ResolveItemName(
+        Guid? dishId,
+        Guid? productId,
+        IReadOnlyDictionary<Guid, string> dishNamesById,
+        IReadOnlyDictionary<Guid, string> productNamesById)
+    {
+        if (dishId is Guid resolvedDishId && dishNamesById.TryGetValue(resolvedDishId, out var dishName))
+        {
+            return dishName;
+        }
+
+        if (productId is Guid resolvedProductId && productNamesById.TryGetValue(resolvedProductId, out var productName))
+        {
+            return productName;
+        }
+
+        return "Unknown item";
     }
 }

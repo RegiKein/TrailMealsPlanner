@@ -16,10 +16,12 @@ public static class DependencyInjection
         services.AddInfrastructure();
         services.AddSingleton<DishCatalogViewModel>();
         services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<ParticipantsCatalogViewModel>();
         services.AddSingleton<ProductCatalogViewModel>();
         services.AddSingleton<RationDetailsViewModel>();
         services.AddSingleton<DishCatalogView>();
         services.AddSingleton<MainWindow>();
+        services.AddSingleton<ParticipantsCatalogView>();
         services.AddSingleton<ProductCatalogView>();
         services.AddSingleton<RationDetailsView>();
 

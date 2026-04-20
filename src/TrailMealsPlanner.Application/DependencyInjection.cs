@@ -10,6 +10,8 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddSingleton<IRationProfileRecommendationService, RationProfileRecommendationService>();
+        services.AddSingleton<IGroupPreferenceAnalysisService, GroupPreferenceAnalysisService>();
+        services.AddTransient<AddParticipantHandler>();
         services.AddTransient<AddDishToMealHandler>();
         services.AddTransient<ApplyDayTemplateHandler>();
         services.AddTransient<CopyDayHandler>();
@@ -20,6 +22,8 @@ public static class DependencyInjection
         services.AddTransient<ExportRationHandler>();
         services.AddTransient<GetDayTemplatesHandler>();
         services.AddTransient<GetDishesHandler>();
+        services.AddTransient<GetParticipantsHandler>();
+        services.AddTransient<GetProductPreferencesHandler>();
         services.AddTransient<GetRationAnalyticsHandler>();
         services.AddTransient<GetRationByIdHandler>();
         services.AddTransient<GetRationRecommendationsHandler>();
@@ -27,6 +31,7 @@ public static class DependencyInjection
         services.AddTransient<GetProductsHandler>();
         services.AddTransient<GetRationsHandler>();
         services.AddTransient<SaveDayAsTemplateHandler>();
+        services.AddTransient<SetProductPreferenceHandler>();
 
         return services;
     }
