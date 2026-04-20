@@ -20,6 +20,27 @@ public sealed class RationDay
         DayNumber = dayNumber;
     }
 
+    private RationDay(Guid id, Guid rationProjectId, DateTime date, int dayNumber, IEnumerable<Meal> restoredMeals)
+        : this(rationProjectId, date, dayNumber)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException("Ration day id is required.", nameof(id));
+        }
+
+        Id = id;
+        meals.Clear();
+        foreach (var meal in restoredMeals ?? throw new ArgumentNullException(nameof(restoredMeals)))
+        {
+            if (meal.RationDayId != id)
+            {
+                throw new InvalidOperationException("Meal does not belong to the restored ration day.");
+            }
+
+            meals.Add(meal);
+        }
+    }
+
     public Guid Id { get; }
 
     public DateTime Date { get; }
@@ -29,6 +50,16 @@ public sealed class RationDay
     public Guid RationProjectId { get; }
 
     public IReadOnlyList<Meal> Meals => meals;
+
+    public static RationDay Restore(
+        Guid id,
+        Guid rationProjectId,
+        DateTime date,
+        int dayNumber,
+        IEnumerable<Meal> meals)
+    {
+        return new RationDay(id, rationProjectId, date, dayNumber, meals);
+    }
 
     public void AddDishToMeal(Guid mealId, Guid dishId, decimal quantity)
     {

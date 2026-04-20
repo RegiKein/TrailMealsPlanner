@@ -9,7 +9,16 @@ public sealed class InMemoryProductRepository : IProductRepository
 
     public Task AddAsync(Product product, CancellationToken cancellationToken = default)
     {
-        products.Add(product);
+        var existingIndex = products.FindIndex(existing => existing.Id == product.Id);
+        if (existingIndex >= 0)
+        {
+            products[existingIndex] = product;
+        }
+        else
+        {
+            products.Add(product);
+        }
+
         return Task.CompletedTask;
     }
 

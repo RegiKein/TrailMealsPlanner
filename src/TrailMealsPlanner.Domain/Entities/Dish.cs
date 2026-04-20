@@ -17,11 +17,29 @@ public sealed class Dish
         Name = name.Trim();
     }
 
+    private Dish(Guid id, string name, IEnumerable<DishIngredient> restoredIngredients)
+        : this(name)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException("Dish id is required.", nameof(id));
+        }
+
+        Id = id;
+        ingredients.Clear();
+        ingredients.AddRange(restoredIngredients ?? throw new ArgumentNullException(nameof(restoredIngredients)));
+    }
+
     public Guid Id { get; }
 
     public string Name { get; }
 
     public IReadOnlyList<DishIngredient> Ingredients => ingredients;
+
+    public static Dish Restore(Guid id, string name, IEnumerable<DishIngredient> ingredients)
+    {
+        return new Dish(id, name, ingredients);
+    }
 
     public void AddIngredient(Guid productId, decimal weight)
     {

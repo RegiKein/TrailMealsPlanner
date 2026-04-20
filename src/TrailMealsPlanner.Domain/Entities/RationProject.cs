@@ -37,6 +37,35 @@ public sealed class RationProject
         ParticipantCount = participantCount;
     }
 
+    private RationProject(
+        Guid id,
+        string name,
+        DateTime startDate,
+        int durationDays,
+        int participantCount,
+        RationProfile profile,
+        IEnumerable<RationDay> restoredDays)
+        : this(name, startDate, durationDays, participantCount, profile)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException("Ration project id is required.", nameof(id));
+        }
+
+        Id = id;
+        days.Clear();
+
+        foreach (var day in restoredDays ?? throw new ArgumentNullException(nameof(restoredDays)))
+        {
+            if (day.RationProjectId != id)
+            {
+                throw new InvalidOperationException("Ration day does not belong to the restored ration project.");
+            }
+
+            days.Add(day);
+        }
+    }
+
     public Guid Id { get; }
 
     public string Name { get; }
@@ -52,6 +81,18 @@ public sealed class RationProject
     public RationProfile Profile { get; }
 
     public IReadOnlyList<RationDay> Days => days;
+
+    public static RationProject Restore(
+        Guid id,
+        string name,
+        DateTime startDate,
+        int durationDays,
+        int participantCount,
+        RationProfile profile,
+        IEnumerable<RationDay> days)
+    {
+        return new RationProject(id, name, startDate, durationDays, participantCount, profile, days);
+    }
 
     public void AddDishToMeal(Guid mealId, Guid dishId, decimal quantity)
     {

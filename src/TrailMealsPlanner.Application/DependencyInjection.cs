@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.AddTransient<CreateProductHandler>();
         services.AddTransient<CreateRationHandler>();
         services.AddTransient<ExportRationHandler>();
+        services.AddTransient<ExportRationProjectHandler>();
         services.AddTransient<GetDayTemplatesHandler>();
         services.AddTransient<GetDishesHandler>();
         services.AddTransient<GetParticipantsHandler>();
@@ -30,6 +31,7 @@ public static class DependencyInjection
         services.AddTransient<GetRationWarningsHandler>();
         services.AddTransient<GetProductsHandler>();
         services.AddTransient<GetRationsHandler>();
+        services.AddTransient<ImportRationProjectHandler>();
         services.AddTransient<SaveDayAsTemplateHandler>();
         services.AddTransient<SetProductPreferenceHandler>();
 

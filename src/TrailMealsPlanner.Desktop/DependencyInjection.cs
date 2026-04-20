@@ -12,6 +12,7 @@ public static class DependencyInjection
     public static IServiceCollection AddDesktop(this IServiceCollection services)
     {
         services.AddSingleton(LocalizationService.Instance);
+        services.AddSingleton<ProjectFileDialogService>();
         services.AddApplication();
         services.AddInfrastructure();
         services.AddSingleton<DayTemplatesViewModel>();

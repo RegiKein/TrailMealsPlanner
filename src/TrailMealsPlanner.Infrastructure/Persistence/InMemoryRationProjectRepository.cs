@@ -9,7 +9,16 @@ public sealed class InMemoryRationProjectRepository : IRationProjectRepository
 
     public Task AddAsync(RationProject rationProject, CancellationToken cancellationToken = default)
     {
-        rationProjects.Add(rationProject);
+        var existingIndex = rationProjects.FindIndex(project => project.Id == rationProject.Id);
+        if (existingIndex >= 0)
+        {
+            rationProjects[existingIndex] = rationProject;
+        }
+        else
+        {
+            rationProjects.Add(rationProject);
+        }
+
         return Task.CompletedTask;
     }
 

@@ -9,7 +9,16 @@ public sealed class InMemoryDishRepository : IDishRepository
 
     public Task AddAsync(Dish dish, CancellationToken cancellationToken = default)
     {
-        dishes.Add(dish);
+        var existingIndex = dishes.FindIndex(existing => existing.Id == dish.Id);
+        if (existingIndex >= 0)
+        {
+            dishes[existingIndex] = dish;
+        }
+        else
+        {
+            dishes.Add(dish);
+        }
+
         return Task.CompletedTask;
     }
 

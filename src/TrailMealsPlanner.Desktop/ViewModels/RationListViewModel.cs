@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -20,7 +21,9 @@ public partial class RationListViewModel : ViewModelBase
 {
     private readonly CreateRationHandler createRationHandler;
     private readonly GetRationsHandler getRationsHandler;
+    private readonly ImportRationProjectHandler importRationProjectHandler;
     private readonly LocalizationService localizationService;
+    private readonly ProjectFileDialogService projectFileDialogService;
     private bool isRefreshingState;
     private IReadOnlyList<RationProjectListItemDto> loadedProjects = [];
     private string statusMessageKey = "Status_EnterParameters";
@@ -54,10 +57,14 @@ public partial class RationListViewModel : ViewModelBase
     public RationListViewModel(
         CreateRationHandler createRationHandler,
         GetRationsHandler getRationsHandler,
+        ImportRationProjectHandler importRationProjectHandler,
+        ProjectFileDialogService projectFileDialogService,
         LocalizationService localizationService)
     {
         this.createRationHandler = createRationHandler;
         this.getRationsHandler = getRationsHandler;
+        this.importRationProjectHandler = importRationProjectHandler;
+        this.projectFileDialogService = projectFileDialogService;
         this.localizationService = localizationService;
 
         localizationService.CultureChanged += OnCultureChanged;
@@ -88,6 +95,7 @@ public partial class RationListViewModel : ViewModelBase
     public string ResupplyFrequencyLabel => localizationService.Get("Label_ResupplyFrequency");
     public string CompetitionNutritionFocusTitle => localizationService.Get("Section_CompetitionNutritionFocus");
     public string CreateButtonText => localizationService.Get("Button_Create");
+    public string OpenProjectFileButtonText => "Открыть проект из файла";
     public string SavedProjectsTitle => localizationService.Get("SavedProjects_Title");
     public string SavedProjectsSubtitle => localizationService.Get("SavedProjects_Subtitle");
     public bool IsCompetitionSelected => SelectedActivityTypeOption?.Value == ActivityType.Competition;
@@ -168,6 +176,25 @@ public partial class RationListViewModel : ViewModelBase
         DurationDays = 3;
         ParticipantCount = 2;
         ApplyDefaultProfile(ActivityType.Hiking);
+    }
+
+    [RelayCommand]
+    private async Task OpenProjectFileAsync()
+    {
+        var filePath = await projectFileDialogService.OpenProjectFileAsync();
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            return;
+        }
+
+        var importedId = await importRationProjectHandler.Handle(new ImportRationProjectCommand
+        {
+            FilePath = filePath
+        });
+
+        await ReloadProjects();
+        SelectedRationProject = RationProjects.FirstOrDefault(project => project.Id == importedId);
+        StatusMessage = $"Проект импортирован: {Path.GetFileName(filePath)}";
     }
 
     private void OnCultureChanged(object? sender, EventArgs e)
@@ -281,6 +308,7 @@ public partial class RationListViewModel : ViewModelBase
         OnPropertyChanged(nameof(ResupplyFrequencyLabel));
         OnPropertyChanged(nameof(CompetitionNutritionFocusTitle));
         OnPropertyChanged(nameof(CreateButtonText));
+        OnPropertyChanged(nameof(OpenProjectFileButtonText));
         OnPropertyChanged(nameof(SavedProjectsTitle));
         OnPropertyChanged(nameof(SavedProjectsSubtitle));
     }

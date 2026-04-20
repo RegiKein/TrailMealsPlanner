@@ -23,6 +23,17 @@ public sealed class MealItem
         Quantity = quantity;
     }
 
+    private MealItem(Guid id, Guid? dishId, Guid? productId, decimal quantity)
+        : this(dishId, productId, quantity)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException("Meal item id is required.", nameof(id));
+        }
+
+        Id = id;
+    }
+
     public Guid Id { get; }
 
     public Guid? DishId { get; }
@@ -30,6 +41,11 @@ public sealed class MealItem
     public Guid? ProductId { get; }
 
     public decimal Quantity { get; private set; }
+
+    public static MealItem Restore(Guid id, Guid? dishId, Guid? productId, decimal quantity)
+    {
+        return new MealItem(id, dishId, productId, quantity);
+    }
 
     public bool ReferencesDish(Guid dishId)
     {

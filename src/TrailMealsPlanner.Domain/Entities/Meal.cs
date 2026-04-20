@@ -14,6 +14,19 @@ public sealed class Meal
         RationDayId = rationDayId;
     }
 
+    private Meal(Guid id, MealType type, Guid rationDayId, IEnumerable<MealItem> restoredItems)
+        : this(type, rationDayId)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException("Meal id is required.", nameof(id));
+        }
+
+        Id = id;
+        items.Clear();
+        items.AddRange(restoredItems ?? throw new ArgumentNullException(nameof(restoredItems)));
+    }
+
     public Guid Id { get; }
 
     public MealType Type { get; }
@@ -21,6 +34,11 @@ public sealed class Meal
     public Guid RationDayId { get; }
 
     public IReadOnlyList<MealItem> Items => items;
+
+    public static Meal Restore(Guid id, MealType type, Guid rationDayId, IEnumerable<MealItem> items)
+    {
+        return new Meal(id, type, rationDayId, items);
+    }
 
     public void AddDish(Guid dishId, decimal quantity)
     {

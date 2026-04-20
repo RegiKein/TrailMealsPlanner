@@ -44,6 +44,23 @@ public sealed class Product
         Carbs = carbs;
     }
 
+    private Product(
+        Guid id,
+        string name,
+        decimal caloriesPer100g,
+        decimal protein,
+        decimal fat,
+        decimal carbs)
+        : this(name, caloriesPer100g, protein, fat, carbs)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException("Product id is required.", nameof(id));
+        }
+
+        Id = id;
+    }
+
     public Guid Id { get; }
 
     public string Name { get; }
@@ -55,6 +72,17 @@ public sealed class Product
     public decimal Fat { get; }
 
     public decimal Carbs { get; }
+
+    public static Product Restore(
+        Guid id,
+        string name,
+        decimal caloriesPer100g,
+        decimal protein,
+        decimal fat,
+        decimal carbs)
+    {
+        return new Product(id, name, caloriesPer100g, protein, fat, carbs);
+    }
 
     public NutritionInfo CalculateNutrition(decimal weight)
     {

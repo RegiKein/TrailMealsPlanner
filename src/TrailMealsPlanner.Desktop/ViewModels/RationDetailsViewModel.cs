@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TrailMealsPlanner.Application.DTO;
 using TrailMealsPlanner.Application.UseCases;
+using TrailMealsPlanner.Desktop.Services;
 
 namespace TrailMealsPlanner.Desktop.ViewModels;
 
@@ -19,6 +20,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     private readonly CopyDayHandler copyDayHandler;
     private readonly CopyMealHandler copyMealHandler;
     private readonly ExportRationHandler exportRationHandler;
+    private readonly ExportRationProjectHandler exportRationProjectHandler;
     private readonly GetDayTemplatesHandler getDayTemplatesHandler;
     private readonly GetDishesHandler getDishesHandler;
     private readonly GetRationAnalyticsHandler getRationAnalyticsHandler;
@@ -26,6 +28,7 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     private readonly GetRationRecommendationsHandler getRationRecommendationsHandler;
     private readonly GetRationWarningsHandler getRationWarningsHandler;
     private readonly SaveDayAsTemplateHandler saveDayAsTemplateHandler;
+    private readonly ProjectFileDialogService projectFileDialogService;
     private IReadOnlyList<DishOptionViewModel> availableDishes = [];
     private IReadOnlyList<DayCopyTargetViewModel> availableCopyTargets = [];
     private IReadOnlyList<MealCopyTargetViewModel> availableMealCopyTargets = [];
@@ -44,9 +47,11 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         CopyDayHandler copyDayHandler,
         CopyMealHandler copyMealHandler,
         ExportRationHandler exportRationHandler,
+        ExportRationProjectHandler exportRationProjectHandler,
         GetDayTemplatesHandler getDayTemplatesHandler,
         SaveDayAsTemplateHandler saveDayAsTemplateHandler,
-        ApplyDayTemplateHandler applyDayTemplateHandler)
+        ApplyDayTemplateHandler applyDayTemplateHandler,
+        ProjectFileDialogService projectFileDialogService)
     {
         this.getRationByIdHandler = getRationByIdHandler;
         this.getRationAnalyticsHandler = getRationAnalyticsHandler;
@@ -57,9 +62,11 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
         this.copyDayHandler = copyDayHandler;
         this.copyMealHandler = copyMealHandler;
         this.exportRationHandler = exportRationHandler;
+        this.exportRationProjectHandler = exportRationProjectHandler;
         this.getDayTemplatesHandler = getDayTemplatesHandler;
         this.saveDayAsTemplateHandler = saveDayAsTemplateHandler;
         this.applyDayTemplateHandler = applyDayTemplateHandler;
+        this.projectFileDialogService = projectFileDialogService;
     }
 
     public Guid RationId { get; private set; }
@@ -214,6 +221,30 @@ public sealed partial class RationDetailsViewModel : ViewModelBase
     private async Task ExportPdf()
     {
         await ExportAsync(RationExportFormat.Pdf);
+    }
+
+    [RelayCommand]
+    private async Task SaveProjectFileAsync()
+    {
+        if (RationId == Guid.Empty)
+        {
+            StatusMessage = "Сначала выберите рацион.";
+            return;
+        }
+
+        var filePath = await projectFileDialogService.SaveProjectFileAsync(Name);
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            return;
+        }
+
+        await exportRationProjectHandler.Handle(new ExportRationProjectCommand
+        {
+            RationId = RationId,
+            FilePath = filePath
+        });
+
+        StatusMessage = $"Проект сохранён: {filePath}";
     }
 
     private async Task AddDishToMealAsync(Guid mealId, Guid dishId, decimal quantity)
